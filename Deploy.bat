@@ -1,7 +1,7 @@
 @echo off
 cd %~dp0
 set "_title=Checksum"
-set "_version=2.1"
+set "_version=3.0"
 set "_date=20201015"
 set "_author=lxvs"
 set "_email=lllxvs@gmail.com"
@@ -10,7 +10,7 @@ title %_title% Deployment %_version%
 echo.
 echo.  - UPDATE LOG -
 echo.
-echo.  ^| Get MD5 v2.1 20201015
+echo.  ^| Get MD5 v3.0 20201015
 echo.  ^|  - Deploy to user's folder now.
 echo.  ^|  - Codes improved.
 echo.  ^|  
