@@ -1,39 +1,24 @@
 @echo off
 cd %~dp0
-set "_title=Get MD5"
-set "_version=2.0"
-set "_date=20201012"
+set "_title=Checksum"
+set "_version=2.1"
+set "_date=20201015"
 set "_author=lxvs"
 set "_email=lllxvs@gmail.com"
+set "_target=%USERPROFILE%\checksum.bat"
 title %_title% Deployment %_version%
 echo.
 echo.  - UPDATE LOG -
 echo.
-echo.  ^| Get MD5 v1.1 20200819
+echo.  ^| Get MD5 v2.1 20201015
+echo.  ^|  - Deploy to user's folder now.
+echo.  ^|  - Codes improved.
 echo.  ^|  
-echo.  ^|   - Now MD5 output is in uppercase.
-echo.  ^|   - Removed double quote in the first line output.
-echo.  ^|   - Removed spaces of the output.
-echo.  ^|   - Added execution feedback.
+echo.  ^| Comming soon:
+echo.  ^|  - Imporve multi-file support.
+echo.  ^|  - More algorithms.
 echo.  ^|  
-echo.  ^| Get MD5 v1.2 20200919
-echo.  ^|  
-echo.  ^|   - Set MD5.bat to hidden.
-echo.  ^|   - Now will delete the old MD5.bat before copying.
-echo.  ^|   - Added a title.
-echo.  ^|  
-echo.  ^| Get MD5 v2.0 20201012
-echo.  ^|   
-echo.  ^|   - Added mode selection function.
-echo.  ^|   - Added undeployment function.
-echo.  ^|   - Added capital toggle function.
-echo.  ^|   - Fixes a bug that happens when there is no argument.
-echo.  ^|   - Look ^& feel improvements.
-echo.  ^|   - Minor bug fixes.
-echo.  ^|  
-echo.  ^| by %_author%
-echo.  ^|  
-echo.  ^| %_email%
+echo.  ^| by %_author% ^<%_email%^>
 echo.
 call:deltmp
 
@@ -67,66 +52,52 @@ goto ModeSelect
 :Mode1
 :Mode2
 echo.
-echo.^> Writting the batch file to C:\MD5.bat ...
-echo.@echo off>getmd5tmp.bat || call:err 70
-attrib +h getmd5tmp.bat
-echo title %_title% %_version%>>getmd5tmp.bat
-echo rem>>getmd5tmp.bat
-echo rem %_title% %_version% %_date%>>getmd5tmp.bat
-echo rem>>getmd5tmp.bat
-echo rem by %_author% ^<%_email%^>>>getmd5tmp.bat
-echo rem>>getmd5tmp.bat
-echo if "%%~1" EQU "" ^(exit^)>>getmd5tmp.bat
-echo echo %%~1>>getmd5tmp.bat
-echo echo.>>getmd5tmp.bat
-echo FOR /F "skip=1 delims=" %%%%i IN ^('CertUtil -hashfile %%1 md5'^) DO (>>getmd5tmp.bat
-echo.    set mout=%%%%i>>getmd5tmp.bat
-echo.    goto End>>getmd5tmp.bat
-echo ^)>>getmd5tmp.bat
-echo ^:End>>getmd5tmp.bat
+echo.^> Adding [Get MD5] to right-click menu...
+REG ADD HKCR\*\shell\checksum /ve /d "Get MD5" /f >nul 2>&1 || call:err 560
+REG ADD HKCR\*\shell\checksum\command /ve /d "\"%_target%\" \"%%1\"" /f >nul 2>&1 || call:err 570
+echo.
+echo.^> Writting the batch file to %_target%...
+echo.@echo off>deploy.tmp || call:err 610
+attrib +h deploy.tmp
+echo title %_title% %_version%>>deploy.tmp
+echo rem>>deploy.tmp
+echo rem %_title% %_version% %_date%>>deploy.tmp
+echo rem>>deploy.tmp
+echo rem by %_author% ^<%_email%^>>>deploy.tmp
+echo rem>>deploy.tmp
+echo if "%%~1" EQU "" ^(exit^)>>deploy.tmp
+echo echo %%~1>>deploy.tmp
+echo echo.>>deploy.tmp
+echo FOR /F "skip=1 delims=" %%%%i IN ^('CertUtil -hashfile %%1 md5'^) DO (>>deploy.tmp
+echo.    set mout=%%%%i>>deploy.tmp
+echo.    goto End>>deploy.tmp
+echo ^)>>deploy.tmp
+echo ^:End>>deploy.tmp
 
 if %mode%==2 (goto mode_lowercase)
-echo FOR /F "skip=2 delims=" %%%%I in ^('tree "\%%mout%%"'^) do if not defined moutupper set "moutupper=%%%%~I">>getmd5tmp.bat
-echo set "mout=%%moutupper%%">>getmd5tmp.bat
+echo FOR /F "skip=2 delims=" %%%%I in ^('tree "\%%mout%%"'^) do if not defined moutupper set "moutupper=%%%%~I">>deploy.tmp
+echo set "mout=%%moutupper%%">>deploy.tmp
 
 :mode_lowercase
-echo set "mout=%%mout:~3%%">>getmd5tmp.bat
-echo echo %%mout%%>>getmd5tmp.bat
-echo echo.>>getmd5tmp.bat
-echo echo ^| set /p=%%mout%%^| clip>>getmd5tmp.bat
-echo echo MD5 has been copied to clipboard.>>getmd5tmp.bat
-echo echo.>>getmd5tmp.bat
-echo pause>>getmd5tmp.bat
-del /f /q C:\MD5.bat >nul 2>&1
-del /ah /f /q C:\MD5.bat >nul 2>&1
-echo f |xcopy getmd5tmp.bat C:\MD5.bat /h /y >nul 2>&1 || call:err 1010
-attrib +r +h C:\MD5.bat
-del /f /q getmd5tmp.bat >nul 2>&1
-del /ah /f /q getmd5tmp.bat >nul 2>&1
-
-echo.
-echo.^> Adding [Get MD5] to right-click menu...
-echo Windows Registry Editor Version 5.00>getmd5tmp.reg || call:err 1090
-attrib +h getmd5tmp.reg
-echo [HKEY_CLASSES_ROOT\*\shell\getmd5]>>getmd5tmp.reg
-echo @="Get MD5">>getmd5tmp.reg
-echo [HKEY_CLASSES_ROOT\*\shell\getmd5\command]>>getmd5tmp.reg
-echo @="C:\\MD5.bat \"%%1\"">>getmd5tmp.reg
-regedit /s getmd5tmp.reg || call:err 1150
-del /f /q getmd5tmp.reg >nul 2>&1
-del /ah /f /q getmd5tmp.reg >nul 2>&1
+echo set "mout=%%mout:~3%%">>deploy.tmp
+echo echo %%mout%%>>deploy.tmp
+echo echo.>>deploy.tmp
+echo echo ^| set /p=%%mout%%^| clip>>deploy.tmp
+echo echo MD5 has been copied to clipboard.>>deploy.tmp
+echo echo.>>deploy.tmp
+echo pause>>deploy.tmp
+del /f /q %_target% >nul 2>&1
+del /ah /f /q %_target% >nul 2>&1
+echo f |xcopy deploy.tmp %_target% /h /y >nul 2>&1 || call:err 920
+attrib +r +h %_target%
+call:DelTmp
 goto Finished
 
 :Mode0
-del /f /q C:\MD5.bat >nul 2>&1
-del /ah /f /q C:\MD5.bat >nul 2>&1
-if exist C:\MD5.bat (call:err 1241)
-echo Windows Registry Editor Version 5.00>getmd5tmp0.reg || call:err 1240
-attrib +h getmd5tmp0.reg
-echo [-HKEY_CLASSES_ROOT\*\shell\getmd5]>>getmd5tmp0.reg
-regedit /s getmd5tmp0.reg || call:err 1270
-del /f /q getmd5tmp0.reg >nul 2>&1
-del /ah /f /q getmd5tmp0.reg >nul 2>&1
+REG DELETE HKCR\*\shell\checksum /f >nul 2>&1 || call:err 1030
+del /f /q %_target% >nul 2>&1
+del /ah /f /q %_target% >nul 2>&1
+if exist %_target% (call:err 1020)
 goto Finished_0
 
 :Finished
@@ -153,17 +124,11 @@ echo.^> Error code: %1
 echo.
 echo.^> Please run this script as administrator.
 echo.
-echo.^> If you did run as administer, please contact %_email% for support!
-echo.
 set /p=^> <nul
 pause
 exit
 
 :DelTmp
-del /f /q getmd5tmp.bat >nul 2>&1
-del /f /q getmd5tmp.reg >nul 2>&1
-del /f /q getmd5tmp0.reg >nul 2>&1
-del /ah /f /q getmd5tmp.bat >nul 2>&1
-del /ah /f /q getmd5tmp.reg >nul 2>&1
-del /ah /f /q getmd5tmp0.reg >nul 2>&1
+del /f /q deploy.tmp >nul 2>&1
+del /ah /f /q deploy.tmp >nul 2>&1
 goto:eof
