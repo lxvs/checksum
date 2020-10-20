@@ -1,8 +1,8 @@
 @echo off
 cd %~dp0
 set "_title=Checksum"
-set "_version=3.0"
-set "_date=20201015"
+set "_version=3.0a"
+set "_date=20201020"
 set "_author=lxvs"
 set "_email=lllxvs@gmail.com"
 set "_target=%USERPROFILE%\checksum.bat"
@@ -10,11 +10,16 @@ title %_title% Deployment %_version%
 echo.
 echo.  - UPDATE LOG -
 echo.
-echo.  ^| Get MD5 v3.0 20201015
+echo.  ^| Get MD5 v3.0    20201015
 echo.  ^|  - Deploy to user's folder now.
 echo.  ^|  - Codes improved.
 echo.  ^|  
+echo.  ^| Get MD5 v3.0a   20201020
+echo.  ^|  - Fixed a bug that first 3 characters of lower case MD5 output was omitted.
+echo.  ^|  - Considered the situation that checksum on a blank file.
+echo.  ^|  
 echo.  ^| Comming soon:
+echo.  ^|  - Quiet mode ^(do not show the dialog and only copy MD5 output^).
 echo.  ^|  - Imporve multi-file support.
 echo.  ^|  - More algorithms.
 echo.  ^|  
@@ -66,6 +71,7 @@ echo rem>>deploy.tmp
 echo rem by %_author% ^<%_email%^>>>deploy.tmp
 echo rem>>deploy.tmp
 echo if "%%~1" EQU "" ^(exit^)>>deploy.tmp
+echo if "%%~z1" EQU "0" ^(exit^)>>deploy.tmp
 echo echo %%~1>>deploy.tmp
 echo echo.>>deploy.tmp
 echo FOR /F "skip=1 delims=" %%%%i IN ^('CertUtil -hashfile %%1 md5'^) DO (>>deploy.tmp
@@ -76,10 +82,9 @@ echo ^:End>>deploy.tmp
 
 if %mode%==2 (goto mode_lowercase)
 echo FOR /F "skip=2 delims=" %%%%I in ^('tree "\%%mout%%"'^) do if not defined moutupper set "moutupper=%%%%~I">>deploy.tmp
-echo set "mout=%%moutupper%%">>deploy.tmp
+echo set "mout=%%moutupper:~3%%">>deploy.tmp
 
 :mode_lowercase
-echo set "mout=%%mout:~3%%">>deploy.tmp
 echo echo %%mout%%>>deploy.tmp
 echo echo.>>deploy.tmp
 echo echo ^| set /p=%%mout%%^| clip>>deploy.tmp
