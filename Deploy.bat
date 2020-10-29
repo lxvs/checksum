@@ -1,65 +1,135 @@
 @echo off
 cd %~dp0
 set "_title=Checksum"
-set "_version=3.0a"
-set "_date=20201020"
+set "_version=4.0a"
+set "_date=20201027"
 set "_author=lxvs"
 set "_email=lllxvs@gmail.com"
 set "_target=%USERPROFILE%\checksum.bat"
 title %_title% Deployment %_version%
 echo.
-echo.  - UPDATE LOG -
+echo.  - Release Notes -
 echo.
-echo.  ^| Get MD5 v3.0    20201015
-echo.  ^|  - Deploy to user's folder now.
-echo.  ^|  - Codes improved.
-echo.  ^|  
-echo.  ^| Get MD5 v3.0a   20201020
-echo.  ^|  - Fixed a bug that first 3 characters of lower case MD5 output was omitted.
-echo.  ^|  - Considered the situation that checksum on a blank file.
+echo.  ^| checksum 4.0a   20201027
+echo.  ^|  - Added more algorithms: MD4, MD2, SHA1, SHA256, SHA384, SHA512.
 echo.  ^|  
 echo.  ^| Comming soon:
+echo.  ^|  - 
 echo.  ^|  - Quiet mode ^(do not show the dialog and only copy MD5 output^).
 echo.  ^|  - Imporve multi-file support.
-echo.  ^|  - More algorithms.
 echo.  ^|  
 echo.  ^| by %_author% ^<%_email%^>
 echo.
 call:deltmp
-
-:ModeSelect
+:ModeDisp
 echo.
-echo.^> Please select work mode from below and press Enter.
+echo.^> Please choose one algorithm ^(input the numbering^):
 echo.
-echo.  ^| 1: Add Get MD5 ^(UPPER CASE OUTPUT^) to context menu ^(default^).
+echo.  ^| 1   MD5
 echo.  ^| 
-echo.  ^| 2: Add Get MD5 ^(lower case output^) to context menu.
+echo.  ^| 2   MD4
 echo.  ^| 
-echo.  ^| 0: Entirely remove Get MD5 context menu and relative files.
+echo.  ^| 4   MD2
 echo.  ^| 
-echo.  ^| Q: Quit.
+echo.  ^| 8   SHA1
+echo.  ^| 
+echo.  ^| 16  SHA256
+echo.  ^| 
+echo.  ^| 32  SHA384
+echo.  ^| 
+echo.  ^| 64  SHA512
+echo.  ^| 
+REM echo.  ^| 128 Cascaded context menu
+REM echo.  ^| 
+echo.  ^| 0   Uninstall
+REM echo.
+REM echo.^> You can choose multiple items by adding the numbering. For example, input 1+8+128 or 137 for creating a cascaded menu containing MD5 and SHA1. 
+:ModeInput
 echo.
 set /p=$ <nul
+set mode=
 set /p mode=
-if "%mode%"=="" (set mode=1)
-
-if %mode%==1 (goto Mode1)
-if %mode%==2 (goto Mode2)
-if %mode%==0 (goto Mode0)
-if %mode%==Q (exit)
+if "%mode%"=="" (goto Unexp)
+if %mode%==0 (goto mode0)
 if %mode%==q (exit)
-cls
+if %mode%==quit (exit)
+if %mode%==exit (exit)
+set confirmed=0
+if %mode:~-1%==y (
+    set mode=%mode:~,-1%
+    set confirmed=1
+)
+if "%mode%" NEQ "" (goto ModeParse)
+:Unexp
 echo.
 echo.^> Unexpected value input.
+goto ModeInput
+:ModeParse
+set /a mode=%mode% >nul 2>&1 || goto Unexp
+if %mode%==0 (goto Unexp)
+if %mode%==128 (goto Unexp)
+set /a alg0=%mode%/1%%2
+set /a alg1=%mode%/2%%2
+set /a alg2=%mode%/4%%2
+set /a alg3=%mode%/8%%2
+set /a alg4=%mode%/16%%2
+set /a alg5=%mode%/32%%2
+set /a alg6=%mode%/64%%2
+set /a CCMENU=%mode%/128%%2
 echo.
-goto ModeSelect
+set /p=^> You choosed: < nul 
+if %alg0% EQU 1 (
+    set /p=MD5, <nul
+    set alg=MD5
+)
+if %alg1% EQU 1 (
+    set /p=MD4, <nul
+    set alg=MD4
+)
+if %alg2% EQU 1 (
+    set /p=MD2, <nul
+    set alg=MD2
+)
+if %alg3% EQU 1 (
+    set /p=SHA1, <nul
+    set alg=SHA1
+)
+if %alg4% EQU 1 (
+    set /p=SHA256, <nul
+    set alg=SHA256
+)
+if %alg5% EQU 1 (
+    set /p=SHA384, <nul
+    set alg=SHA384
+)
+if %alg6% EQU 1 (
+    set /p=SHA512, <nul
+    set alg=SHA512
+)
+if %ccmenu% EQU 1 (set /p=and cascaded menu, <nul)
+set /p=right? ^(Y^/N^): <nul
+if %confirmed%==1 (
+    set confirm=Y
+    set /p=Y<nul
+    echo.
+) else (
+    set confirm=
+    set /p confirm=
+)
+if "%confirm%" EQU "" (set confirm=N)
+if %confirm% EQU y (set confirm=Y)
+if %confirm% NEQ Y (goto modedisp)
+echo.
+echo.^> Adding checksum to context menu...
+REG DELETE HKCR\*\shell\checksum /f >nul 2>&1
+set /a algC=%alg0%+%alg1%+%alg2%+%alg3%+%alg4%+%alg5%+%alg6%
+if %ccmenu% EQU 1 (
+    pause
+) else (
+    REG ADD HKCR\*\shell\checksum /ve /d "Checksum - "%alg% /f >nul 2>&1 || call:err 560
+    REG ADD HKCR\*\shell\checksum\command /ve /d "\"%_target%\" \"%%1\" %alg%" /f >nul 2>&1 || call:err 570
 
-:Mode1
-:Mode2
-echo.
-echo.^> Adding [Get MD5] to right-click menu...
-REG ADD HKCR\*\shell\checksum /ve /d "Get MD5" /f >nul 2>&1 || call:err 560
-REG ADD HKCR\*\shell\checksum\command /ve /d "\"%_target%\" \"%%1\"" /f >nul 2>&1 || call:err 570
+)
 echo.
 echo.^> Writting the batch file to %_target%...
 echo.@echo off>deploy.tmp || call:err 610
@@ -73,22 +143,21 @@ echo rem>>deploy.tmp
 echo if "%%~1" EQU "" ^(exit^)>>deploy.tmp
 echo if "%%~z1" EQU "0" ^(exit^)>>deploy.tmp
 echo echo %%~1>>deploy.tmp
-echo echo.>>deploy.tmp
-echo FOR /F "skip=1 delims=" %%%%i IN ^('CertUtil -hashfile %%1 md5'^) DO (>>deploy.tmp
+echo FOR /F "skip=1 delims=" %%%%i IN ^('CertUtil -hashfile %%1 %%2'^) DO (>>deploy.tmp
 echo.    set mout=%%%%i>>deploy.tmp
 echo.    goto End>>deploy.tmp
 echo ^)>>deploy.tmp
 echo ^:End>>deploy.tmp
-
-if %mode%==2 (goto mode_lowercase)
+rem if %LCase%==1 (goto mode_lowercase)
 echo FOR /F "skip=2 delims=" %%%%I in ^('tree "\%%mout%%"'^) do if not defined moutupper set "moutupper=%%%%~I">>deploy.tmp
 echo set "mout=%%moutupper:~3%%">>deploy.tmp
 
 :mode_lowercase
+echo set /p=%%2: ^< nul>>deploy.tmp
 echo echo %%mout%%>>deploy.tmp
 echo echo.>>deploy.tmp
 echo echo ^| set /p=%%mout%%^| clip>>deploy.tmp
-echo echo MD5 has been copied to clipboard.>>deploy.tmp
+echo echo Checksum has been copied to clipboard.>>deploy.tmp
 echo echo.>>deploy.tmp
 echo pause>>deploy.tmp
 del /f /q %_target% >nul 2>&1
@@ -107,7 +176,7 @@ goto Finished_0
 
 :Finished
 echo. 
-echo.^> Congratulations! Deployment is finished, now you should see an [Get MD5] item on the right-click menu of a file.
+echo.^> Deployment is finished.
 echo.
 set /p=^> <nul
 pause
@@ -115,7 +184,7 @@ exit
 
 :Finished_0
 echo. 
-echo.^> Removed successfully!
+echo.^> Removed successfully.
 echo.
 set /p=^> <nul
 pause
