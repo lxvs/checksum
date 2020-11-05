@@ -1,7 +1,7 @@
 @echo off
 cd %~dp0
 set "_title=Checksum"
-set "_version=4.0b"
+set "_version=4.0c"
 set "_date=20201105"
 set "_author=lxvs"
 set "_email=lllxvs@gmail.com"
@@ -22,7 +22,7 @@ echo.  ^|  - Added lowercase deployment support.
 echo.  ^|  
 echo.  ^| Comming soon:
 echo.  ^|  - Cascaded context menu.
-echo.  ^|  - Quiet mode ^(do not show the dialog and only copy MD5 output^).
+echo.  ^|  - Quiet mode ^(do not show the dialog and only copy checksum output^).
 echo.  ^|  - Imporve multi-file support.
 echo.  ^|  
 echo.  ^| by %_author% ^<%_email%^>
