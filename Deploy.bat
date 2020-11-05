@@ -17,6 +17,9 @@ echo.  ^|
 echo.  ^| checksum 4.0b   20201105
 echo.  ^|  - Added multi-algorithm deployment support.
 echo.  ^|  
+echo.  ^| checksum 4.0c   20201105
+echo.  ^|  - Added lowercase deployment support.
+echo.  ^|  
 echo.  ^| Comming soon:
 echo.  ^|  - Cascaded context menu.
 echo.  ^|  - Quiet mode ^(do not show the dialog and only copy MD5 output^).
@@ -47,7 +50,12 @@ REM echo.  ^| 128 Cascaded context menu
 REM echo.  ^| 
 echo.  ^| 0   Uninstall
 echo.
-echo.^> You can choose multiple items by adding the numbering. For example, input 1+8+128 or 137 for creating a cascaded menu containing MD5 and SHA1. 
+echo.^> You can choose multiple items by adding the numbering. For example,
+echo.^> 1+8     MD5 and SHA1.
+echo.^> 9       MD5 and SHA1.
+echo.^> 1+8L    MD5 and SHA1, all are lowercase output.
+echo.^> 9Y      MD5 and SHA1, without confirmation.
+echo.^> 9LY     MD5 and SHA1, all are lowercase output, without confirmation.
 :ModeInput
 echo.
 set /p=$ <nul
@@ -59,10 +67,23 @@ if %mode%==q (exit)
 if %mode%==quit (exit)
 if %mode%==exit (exit)
 set confirmed=0
-if %mode:~-1%==y (
-    set mode=%mode:~,-1%
-    set confirmed=1
-)
+set LCase=0
+if %mode:~-1%==y (goto setcfmd)
+if %mode:~-1%==Y (goto setcfmd)
+:parseLower
+if %mode:~-1%==l (goto setlower)
+if %mode:~-1%==L (goto setlower)
+:paramOK
+goto startparse
+:setcfmd
+set mode=%mode:~,-1%
+set confirmed=1
+goto parselower
+:setlower
+set mode=%mode:~,-1%
+set LCase=1
+goto paramOK
+:startParse
 if "%mode%" NEQ "" (goto ModeParse)
 :Unexp
 echo.
@@ -91,8 +112,8 @@ if %alg4% EQU 1 (set alg=%alg%SHA256 )
 if %alg5% EQU 1 (set alg=%alg%SHA384 )
 if %alg6% EQU 1 (set alg=%alg%SHA512 )
 set /p=%alg%<nul
-if %ccmenu% EQU 1 (set /p=and cascaded menu, <nul)
-set /p=right? ^(Y^/N^): <nul
+if %ccmenu% EQU 1 (set /p=, and cascaded menu<nul)
+set /p=, right? ^(Y^/N^): <nul
 if %confirmed%==1 (
     set confirm=Y
     set /p=Y<nul
@@ -107,7 +128,6 @@ if %confirm% NEQ Y (goto modedisp)
 echo.
 echo.^> Adding checksum to context menu...
 call:delReg
-rem set /a algC=%alg0%+%alg1%+%alg2%+%alg3%+%alg4%+%alg5%+%alg6%
 if %ccmenu% EQU 1 (
     echo.
     echo.^> Do not choose cascaded context menu ^(128^) for now, which is in development and coming in 4.1 version. Apologies for the inconvenience.
@@ -140,7 +160,7 @@ echo.    set mout=%%%%i>>deploy.tmp
 echo.    goto End>>deploy.tmp
 echo ^)>>deploy.tmp
 echo ^:End>>deploy.tmp
-rem if %LCase%==1 (goto mode_lowercase)
+if %LCase%==1 (goto mode_lowercase)
 echo FOR /F "skip=2 delims=" %%%%I in ^('tree "\%%mout%%"'^) do if not defined moutupper set "moutupper=%%%%~I">>deploy.tmp
 echo set "mout=%%moutupper:~3%%">>deploy.tmp
 
