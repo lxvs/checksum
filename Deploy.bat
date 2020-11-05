@@ -14,7 +14,7 @@ echo.  ^| checksum 4.0a   20201027
 echo.  ^|  - Added more algorithms: MD4, MD2, SHA1, SHA256, SHA384, SHA512.
 echo.  ^|  
 echo.  ^| Comming soon:
-echo.  ^|  - 
+echo.  ^|  - Multi-algorithm support.
 echo.  ^|  - Quiet mode ^(do not show the dialog and only copy MD5 output^).
 echo.  ^|  - Imporve multi-file support.
 echo.  ^|  
