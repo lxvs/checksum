@@ -1,20 +1,24 @@
 @echo off
 cd %~dp0
 set "_title=Checksum"
-set "_version=4.0a"
-set "_date=20201027"
+set "_version=4.0b"
+set "_date=20201105"
 set "_author=lxvs"
 set "_email=lllxvs@gmail.com"
 set "_target=%USERPROFILE%\checksum.bat"
 title %_title% Deployment %_version%
+:init
 echo.
 echo.  - Release Notes -
 echo.
 echo.  ^| checksum 4.0a   20201027
 echo.  ^|  - Added more algorithms: MD4, MD2, SHA1, SHA256, SHA384, SHA512.
 echo.  ^|  
+echo.  ^| checksum 4.0b   20201105
+echo.  ^|  - Added multi-algorithm deployment support.
+echo.  ^|  
 echo.  ^| Comming soon:
-echo.  ^|  - Multi-algorithm support.
+echo.  ^|  - Cascaded context menu.
 echo.  ^|  - Quiet mode ^(do not show the dialog and only copy MD5 output^).
 echo.  ^|  - Imporve multi-file support.
 echo.  ^|  
@@ -42,8 +46,8 @@ echo.  ^|
 REM echo.  ^| 128 Cascaded context menu
 REM echo.  ^| 
 echo.  ^| 0   Uninstall
-REM echo.
-REM echo.^> You can choose multiple items by adding the numbering. For example, input 1+8+128 or 137 for creating a cascaded menu containing MD5 and SHA1. 
+echo.
+echo.^> You can choose multiple items by adding the numbering. For example, input 1+8+128 or 137 for creating a cascaded menu containing MD5 and SHA1. 
 :ModeInput
 echo.
 set /p=$ <nul
@@ -77,35 +81,16 @@ set /a alg5=%mode%/32%%2
 set /a alg6=%mode%/64%%2
 set /a CCMENU=%mode%/128%%2
 echo.
-set /p=^> You choosed: < nul 
-if %alg0% EQU 1 (
-    set /p=MD5, <nul
-    set alg=MD5
-)
-if %alg1% EQU 1 (
-    set /p=MD4, <nul
-    set alg=MD4
-)
-if %alg2% EQU 1 (
-    set /p=MD2, <nul
-    set alg=MD2
-)
-if %alg3% EQU 1 (
-    set /p=SHA1, <nul
-    set alg=SHA1
-)
-if %alg4% EQU 1 (
-    set /p=SHA256, <nul
-    set alg=SHA256
-)
-if %alg5% EQU 1 (
-    set /p=SHA384, <nul
-    set alg=SHA384
-)
-if %alg6% EQU 1 (
-    set /p=SHA512, <nul
-    set alg=SHA512
-)
+set /p=^> You choosed: <nul
+set alg=
+if %alg0% EQU 1 (set alg=%alg%MD5 )
+if %alg1% EQU 1 (set alg=%alg%MD4 )
+if %alg2% EQU 1 (set alg=%alg%MD2 )
+if %alg3% EQU 1 (set alg=%alg%SHA1 )
+if %alg4% EQU 1 (set alg=%alg%SHA256 )
+if %alg5% EQU 1 (set alg=%alg%SHA384 )
+if %alg6% EQU 1 (set alg=%alg%SHA512 )
+set /p=%alg%<nul
 if %ccmenu% EQU 1 (set /p=and cascaded menu, <nul)
 set /p=right? ^(Y^/N^): <nul
 if %confirmed%==1 (
@@ -121,14 +106,21 @@ if %confirm% EQU y (set confirm=Y)
 if %confirm% NEQ Y (goto modedisp)
 echo.
 echo.^> Adding checksum to context menu...
-REG DELETE HKCR\*\shell\checksum /f >nul 2>&1
-set /a algC=%alg0%+%alg1%+%alg2%+%alg3%+%alg4%+%alg5%+%alg6%
+call:delReg
+rem set /a algC=%alg0%+%alg1%+%alg2%+%alg3%+%alg4%+%alg5%+%alg6%
 if %ccmenu% EQU 1 (
+    echo.
+    echo.^> Do not choose cascaded context menu ^(128^) for now, which is in development and coming in 4.1 version. Apologies for the inconvenience.
+    echo.
+    set /p=^> <nul
     pause
+    cls
+    goto init
 ) else (
-    REG ADD HKCR\*\shell\checksum /ve /d "Checksum - "%alg% /f >nul 2>&1 || call:err 560
-    REG ADD HKCR\*\shell\checksum\command /ve /d "\"%_target%\" \"%%1\" %alg%" /f >nul 2>&1 || call:err 570
-
+    for %%i in (%alg%) do (
+        REG ADD HKCR\*\shell\checksum_%%i /ve /d "Checksum - "%%i /f >nul 2>&1 || call:err 560
+        REG ADD HKCR\*\shell\checksum_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i" /f >nul 2>&1 || call:err 570
+    )
 )
 echo.
 echo.^> Writting the batch file to %_target%...
@@ -168,7 +160,7 @@ call:DelTmp
 goto Finished
 
 :Mode0
-REG DELETE HKCR\*\shell\checksum /f >nul 2>&1 || call:err 1030
+call:delreg
 del /f /q %_target% >nul 2>&1
 del /ah /f /q %_target% >nul 2>&1
 if exist %_target% (call:err 1020)
@@ -184,7 +176,9 @@ exit
 
 :Finished_0
 echo. 
-echo.^> Removed successfully.
+echo.^> Uninstallation has finished.
+echo. 
+echo.^> If checksum items still exist in context menu, please run this script as adminitrator and unistall again.
 echo.
 set /p=^> <nul
 pause
@@ -205,4 +199,15 @@ exit
 :DelTmp
 del /f /q deploy.tmp >nul 2>&1
 del /ah /f /q deploy.tmp >nul 2>&1
+goto:eof
+
+:DelReg
+REG DELETE HKCR\*\shell\checksum /f >nul 2>&1
+REG DELETE HKCR\*\shell\checksum_MD5 /f >nul 2>&1
+REG DELETE HKCR\*\shell\checksum_MD4 /f >nul 2>&1
+REG DELETE HKCR\*\shell\checksum_MD2 /f >nul 2>&1
+REG DELETE HKCR\*\shell\checksum_SHA1 /f >nul 2>&1
+REG DELETE HKCR\*\shell\checksum_SHA256 /f >nul 2>&1
+REG DELETE HKCR\*\shell\checksum_SHA384 /f >nul 2>&1
+REG DELETE HKCR\*\shell\checksum_SHA512 /f >nul 2>&1
 goto:eof
