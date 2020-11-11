@@ -1,8 +1,8 @@
 @echo off
 cd %~dp0
 set "_title=Checksum"
-set "_version=4.0c"
-set "_date=20201105"
+set "_version=4.1"
+set "_date=20201111"
 set "_author=lxvs"
 set "_email=lllxvs@gmail.com"
 set "_target=%USERPROFILE%\checksum.bat"
@@ -11,18 +11,15 @@ title %_title% Deployment %_version%
 echo.
 echo.  - Release Notes -
 echo.
-echo.  ^| checksum 4.0a   20201027
+echo.  ^| checksum 4.1      20201111
 echo.  ^|  - Added more algorithms: MD4, MD2, SHA1, SHA256, SHA384, SHA512.
-echo.  ^|  
-echo.  ^| checksum 4.0b   20201105
 echo.  ^|  - Added multi-algorithm deployment support.
-echo.  ^|  
-echo.  ^| checksum 4.0c   20201105
 echo.  ^|  - Added lowercase deployment support.
+echo.  ^|  - Added cascaded context menu support.
 echo.  ^|  
 echo.  ^| Comming soon:
-echo.  ^|  - Cascaded context menu.
 echo.  ^|  - Quiet mode ^(do not show the dialog and only copy checksum output^).
+echo.  ^|  - Output-to-file mode.
 echo.  ^|  - Imporve multi-file support.
 echo.  ^|  
 echo.  ^| by %_author% ^<%_email%^>
@@ -46,16 +43,13 @@ echo.  ^| 32  SHA384
 echo.  ^| 
 echo.  ^| 64  SHA512
 echo.  ^| 
-REM echo.  ^| 128 Cascaded context menu
-REM echo.  ^| 
+echo.  ^| 128 Cascaded context menu
+echo.  ^| 
 echo.  ^| 0   Uninstall
 echo.
 echo.^> You can choose multiple items by adding the numbering. For example,
-echo.^> 1+8     MD5 and SHA1.
-echo.^> 9       MD5 and SHA1.
-echo.^> 1+8L    MD5 and SHA1, all are lowercase output.
-echo.^> 9Y      MD5 and SHA1, without confirmation.
-echo.^> 9LY     MD5 and SHA1, all are lowercase output, without confirmation.
+echo.^> 9           MD5 and SHA1.
+echo.^> 1+8+128L    MD5 and SHA1, lowercase, in a cascaded menu.
 :ModeInput
 echo.
 set /p=$ <nul
@@ -112,7 +106,7 @@ if %alg4% EQU 1 (set alg=%alg%SHA256 )
 if %alg5% EQU 1 (set alg=%alg%SHA384 )
 if %alg6% EQU 1 (set alg=%alg%SHA512 )
 set /p=%alg%<nul
-if %ccmenu% EQU 1 (set /p=, and cascaded menu<nul)
+if %ccmenu% EQU 1 (set /p= and cascaded menu<nul)
 set /p=, right? ^(Y^/N^): <nul
 if %confirmed%==1 (
     set confirm=Y
@@ -129,13 +123,13 @@ echo.
 echo.^> Adding checksum to context menu...
 call:delReg
 if %ccmenu% EQU 1 (
-    echo.
-    echo.^> Do not choose cascaded context menu ^(128^) for now, which is in development and coming in 4.1 version. Apologies for the inconvenience.
-    echo.
-    set /p=^> <nul
-    pause
-    cls
-    goto init
+    REG ADD HKCR\*\shell\checksum /v "MUIVerb" /d "Checksum" /f >nul 2>&1 || call:err 1250
+    REG ADD HKCR\*\shell\checksum /v "SubCommands"  /f >nul 2>&1 || call:err 1260
+    REG ADD HKCR\*\shell\checksum\shell /f >nul 2>&1 || call:err 1270
+    for %%i in (%alg%) do (
+        REG ADD HKCR\*\shell\checksum\shell\%%i /f >nul 2>&1 || call:err 1290
+        REG ADD HKCR\*\shell\checksum\shell\%%i\command /ve /d "\"%_target%\" \"%%1\" %%i" /f >nul 2>&1 || call:err 1300
+    )
 ) else (
     for %%i in (%alg%) do (
         REG ADD HKCR\*\shell\checksum_%%i /ve /d "Checksum - "%%i /f >nul 2>&1 || call:err 560
