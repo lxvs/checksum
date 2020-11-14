@@ -1,114 +1,97 @@
 @echo off
 cd %~dp0
 set "_title=Checksum"
-set "_version=4.1"
-set "_date=20201111"
-set "_author=lxvs"
-set "_email=lllxvs@gmail.com"
+set "_version=4.2"
+set "_date=20201115"
 set "_target=%USERPROFILE%\checksum.bat"
+set "_github=https://github.com/lxvs/checksum"
 title %_title% Deployment %_version%
 :init
 echo.
 echo.  - Release Notes -
 echo.
-echo.  ^| checksum 4.1      20201111
-echo.  ^|  - Added more algorithms: MD4, MD2, SHA1, SHA256, SHA384, SHA512.
-echo.  ^|  - Added multi-algorithm deployment support.
-echo.  ^|  - Added lowercase deployment support.
-echo.  ^|  - Added cascaded context menu support.
+echo.  ^| %_title% %_version%  updated on %_date%
+echo.  ^|  - Added quiet mode ^(do not show the dialog and only copy checksum output^).
+echo.  ^|  - Added output-to-file mode.
+echo.  ^|  - Many improvements and optimizations.
 echo.  ^|  
-echo.  ^| Comming soon:
-echo.  ^|  - Quiet mode ^(do not show the dialog and only copy checksum output^).
-echo.  ^|  - Output-to-file mode.
-echo.  ^|  - Imporve multi-file support.
-echo.  ^|  
-echo.  ^| by %_author% ^<%_email%^>
+echo.  ^| %_github%
 echo.
 call:deltmp
+set /p=^> <nul
+pause
 :ModeDisp
 echo.
 echo.^> Please choose one algorithm ^(input the numbering^):
 echo.
-echo.  ^| 1   MD5
-echo.  ^| 
-echo.  ^| 2   MD4
-echo.  ^| 
-echo.  ^| 4   MD2
-echo.  ^| 
-echo.  ^| 8   SHA1
-echo.  ^| 
-echo.  ^| 16  SHA256
-echo.  ^| 
-echo.  ^| 32  SHA384
-echo.  ^| 
-echo.  ^| 64  SHA512
-echo.  ^| 
-echo.  ^| 128 Cascaded context menu
-echo.  ^| 
-echo.  ^| 0   Uninstall
+echo.  ^| 1     MD2
+echo.  ^| 2     MD4
+echo.  ^| 4     MD5
+echo.  ^| 8     SHA1
+echo.  ^| 16    SHA256
+echo.  ^| 32    SHA384
+echo.  ^| 64    SHA512
+echo.  ^| 128   Cascaded context menu
+echo.  ^| 256   Also add lowercase output mode
+echo.  ^| 512   Also add quietly-copy-to-clipboard mode
+echo.  ^| 1024  Also add output-to-file mode
+echo.  ^| 0     Uninstall
 echo.
 echo.^> You can choose multiple items by adding the numbering. For example,
-echo.^> 9           MD5 and SHA1.
-echo.^> 1+8+128L    MD5 and SHA1, lowercase, in a cascaded menu.
-:ModeInput
 echo.
-set /p=$ <nul
-set mode=
-set /p mode=
-if "%mode%"=="" (goto Unexp)
-if %mode%==0 (goto mode0)
-if %mode%==q (exit)
-if %mode%==quit (exit)
-if %mode%==exit (exit)
-set confirmed=0
-set LCase=0
-if %mode:~-1%==y (goto setcfmd)
-if %mode:~-1%==Y (goto setcfmd)
-:parseLower
-if %mode:~-1%==l (goto setlower)
-if %mode:~-1%==L (goto setlower)
-:paramOK
-goto startparse
-:setcfmd
-set mode=%mode:~,-1%
-set confirmed=1
-goto parselower
-:setlower
-set mode=%mode:~,-1%
-set LCase=1
-goto paramOK
-:startParse
-if "%mode%" NEQ "" (goto ModeParse)
+echo.  ^| 4+8+128     MD5 and SHA1, in a cascaded menu, UPPERCASE output only.
+echo.  ^| 4+8+128L    MD5 and SHA1, in a cascaded menu, lowercase output only.
+echo.  ^| 4+8+128+256 MD5 and SHA1, in a cascaded menu, UPPERCASE and lowercase output.
+goto modeinput
 :Unexp
 echo.
 echo.^> Unexpected value input.
-goto ModeInput
-:ModeParse
-set /a mode=%mode% >nul 2>&1 || goto Unexp
-if %mode%==0 (goto Unexp)
-if %mode%==128 (goto Unexp)
-set /a alg0=%mode%/1%%2
-set /a alg1=%mode%/2%%2
-set /a alg2=%mode%/4%%2
-set /a alg3=%mode%/8%%2
-set /a alg4=%mode%/16%%2
-set /a alg5=%mode%/32%%2
-set /a alg6=%mode%/64%%2
-set /a CCMENU=%mode%/128%%2
+:ModeInput
+echo.
+set /p=$ <nul
+set mod=
+set /p mod=
+if "%mod%"=="" goto modeinput
+if "%mod%"=="0" goto uninstall
+if /i "%mod%"=="q" goto:eof
+if /i "%mod%"=="quit" goto:eof
+if /i "%mod%"=="exit" goto:eof
+set cfmd=
+set lcase=
+if /i "%mod:~-1%"=="Y" (set "mod=%mod:~,-1%" & set cfmd=1)
+if /i "%mod:~-1%"=="L" (set "mod=%mod:~,-1%" & set lcase=1)
+set /a mod=%mod% >nul 2>&1 || goto Unexp
+if "%mod%"=="0" goto Unexp
+set /a alg0=mod/1%%2
+set /a alg1=mod/2%%2
+set /a alg2=mod/4%%2
+set /a alg3=mod/8%%2
+set /a alg4=mod/16%%2
+set /a alg5=mod/32%%2
+set /a alg6=mod/64%%2
+set /a ccmn=mod/128%%2
+set /a modl=mod/256%%2
+set /a modq=mod/512%%2
+set /a modf=mod/1024%%2
+set /a algs=alg0+alg1+alg2+alg3+alg4+alg5+alg6
+if "%algs%"=="0" goto unexp
 echo.
 set /p=^> You choosed: <nul
 set alg=
-if %alg0% EQU 1 (set alg=%alg%MD5 )
-if %alg1% EQU 1 (set alg=%alg%MD4 )
-if %alg2% EQU 1 (set alg=%alg%MD2 )
-if %alg3% EQU 1 (set alg=%alg%SHA1 )
-if %alg4% EQU 1 (set alg=%alg%SHA256 )
-if %alg5% EQU 1 (set alg=%alg%SHA384 )
-if %alg6% EQU 1 (set alg=%alg%SHA512 )
+if "%alg0%"=="1" set "alg=%alg% MD2"
+if "%alg1%"=="1" set "alg=%alg% MD4"
+if "%alg2%"=="1" set "alg=%alg% MD5"
+if "%alg3%"=="1" set "alg=%alg% SHA1"
+if "%alg4%"=="1" set "alg=%alg% SHA256"
+if "%alg5%"=="1" set "alg=%alg% SHA384"
+if "%alg6%"=="1" set "alg=%alg% SHA512"
 set /p=%alg%<nul
-if %ccmenu% EQU 1 (set /p= and cascaded menu<nul)
+if "%ccmn%"=="1" set /p=, cascaded menu<nul
+if "%modl%"=="1" set /p=, lowercase mode<nul
+if "%modq%"=="1" set /p=, quiet mode<nul
+if "%modf%"=="1" set /p=, output-to-file mode<nul
 set /p=, right? ^(Y^/N^): <nul
-if %confirmed%==1 (
+if "%cfmd%"=="1" (
     set confirm=Y
     set /p=Y<nul
     echo.
@@ -116,56 +99,111 @@ if %confirmed%==1 (
     set confirm=
     set /p confirm=
 )
-if "%confirm%" EQU "" (set confirm=N)
-if %confirm% EQU y (set confirm=Y)
-if %confirm% NEQ Y (goto modedisp)
+if /i "%confirm%" NEQ "Y" cls & goto modedisp
 echo.
 echo.^> Adding checksum to context menu...
 call:delReg
-if %ccmenu% EQU 1 (
+if "%ccmn%"=="1" (
     REG ADD HKCR\*\shell\checksum /v "MUIVerb" /d "Checksum" /f >nul 2>&1 || call:err 1250
     REG ADD HKCR\*\shell\checksum /v "SubCommands"  /f >nul 2>&1 || call:err 1260
     REG ADD HKCR\*\shell\checksum\shell /f >nul 2>&1 || call:err 1270
     for %%i in (%alg%) do (
-        REG ADD HKCR\*\shell\checksum\shell\%%i /f >nul 2>&1 || call:err 1290
-        REG ADD HKCR\*\shell\checksum\shell\%%i\command /ve /d "\"%_target%\" \"%%1\" %%i" /f >nul 2>&1 || call:err 1300
+        REG ADD HKCR\*\shell\checksum\shell\a_%%i /ve /d %%i /f >nul 2>&1 || call:err 1290
+        REG ADD HKCR\*\shell\checksum\shell\a_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i" /f >nul 2>&1 || call:err 1300
+        if "%modf%"=="1" (
+            REG ADD HKCR\*\shell\checksum\shell\f_%%i /ve /d "To file - %%i" /f >nul 2>&1 || call:err 1110
+            REG ADD HKCR\*\shell\checksum\shell\f_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i F" /f >nul 2>&1 || call:err 1120
+        )
+        if "%modl%"=="1" (
+            REG ADD HKCR\*\shell\checksum\shell\l_%%i /ve /d "Lowercase - %%i" /f >nul 2>&1 || call:err 1150
+            REG ADD HKCR\*\shell\checksum\shell\l_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i L" /f >nul 2>&1 || call:err 1160
+        )
+        if "%modq%"=="1" (
+            REG ADD HKCR\*\shell\checksum\shell\q_%%i /ve /d "To clipboard - %%i" /f >nul 2>&1 || call:err 1190
+            REG ADD HKCR\*\shell\checksum\shell\q_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i Q" /f >nul 2>&1 || call:err 1200
+        )
     )
+    
 ) else (
     for %%i in (%alg%) do (
-        REG ADD HKCR\*\shell\checksum_%%i /ve /d "Checksum - "%%i /f >nul 2>&1 || call:err 560
-        REG ADD HKCR\*\shell\checksum_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i" /f >nul 2>&1 || call:err 570
+        REG ADD HKCR\*\shell\checksuma_%%i /ve /d "Checksum - "%%i /f >nul 2>&1 || call:err 560
+        REG ADD HKCR\*\shell\checksuma_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i" /f >nul 2>&1 || call:err 570
+        if "%modf%"=="1" (
+            REG ADD HKCR\*\shell\checksumf_%%i /ve /d "Checksum to file - %%i" /f >nul 2>&1 || call:err 1161
+            REG ADD HKCR\*\shell\checksumf_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i F" /f >nul 2>&1 || call:err 1170
+        )
+        if "%modl%"=="1" (
+            REG ADD HKCR\*\shell\checksuml_%%i /ve /d "Checksum lowercase - %%i" /f >nul 2>&1 || call:err 1201
+            REG ADD HKCR\*\shell\checksuml_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i L" /f >nul 2>&1 || call:err 1210
+        )
+        if "%modq%"=="1" (
+            REG ADD HKCR\*\shell\checksumq_%%i /ve /d "Checksum to clipboard - %%i" /f >nul 2>&1 || call:err 1240
+            REG ADD HKCR\*\shell\checksumq_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i Q" /f >nul 2>&1 || call:err 1251
+        )
     )
 )
 echo.
 echo.^> Writting the batch file to %_target%...
 echo.@echo off>deploy.tmp || call:err 610
 attrib +h deploy.tmp
-echo title %_title% %_version%>>deploy.tmp
-echo rem>>deploy.tmp
-echo rem %_title% %_version% %_date%>>deploy.tmp
-echo rem>>deploy.tmp
-echo rem by %_author% ^<%_email%^>>>deploy.tmp
-echo rem>>deploy.tmp
-echo if "%%~1" EQU "" ^(exit^)>>deploy.tmp
-echo if "%%~z1" EQU "0" ^(exit^)>>deploy.tmp
-echo echo %%~1>>deploy.tmp
-echo FOR /F "skip=1 delims=" %%%%i IN ^('CertUtil -hashfile %%1 %%2'^) DO (>>deploy.tmp
-echo.    set mout=%%%%i>>deploy.tmp
-echo.    goto End>>deploy.tmp
-echo ^)>>deploy.tmp
-echo ^:End>>deploy.tmp
-if %LCase%==1 (goto mode_lowercase)
-echo FOR /F "skip=2 delims=" %%%%I in ^('tree "\%%mout%%"'^) do if not defined moutupper set "moutupper=%%%%~I">>deploy.tmp
-echo set "mout=%%moutupper:~3%%">>deploy.tmp
-
-:mode_lowercase
-echo set /p=%%2: ^< nul>>deploy.tmp
-echo echo %%mout%%>>deploy.tmp
-echo echo.>>deploy.tmp
-echo echo ^| set /p=%%mout%%^| clip>>deploy.tmp
-echo echo Checksum has been copied to clipboard.>>deploy.tmp
-echo echo.>>deploy.tmp
-echo pause>>deploy.tmp
+echo.title %_title% %_version%>>deploy.tmp
+echo.rem %_title% %_version% updated on %_date%>>deploy.tmp
+echo.rem %_github%>>deploy.tmp
+echo.if "%%~1"=="" goto:eof>>deploy.tmp
+echo.if not exist "%%~1" goto:eof>>deploy.tmp
+echo.if "%%~z1"=="0" goto:eof>>deploy.tmp
+echo.if "%%3" NEQ "" ^(>>deploy.tmp
+echo.    SETLOCAL ENABLEDELAYEDEXPANSION>>deploy.tmp
+echo.    set "_mode=%%3">>deploy.tmp
+echo.    set "_C=0">>deploy.tmp
+echo.    set "_F=0">>deploy.tmp
+echo.    set "_L=0">>deploy.tmp
+echo.    set "_Q=0">>deploy.tmp
+echo.    set "len=0">>deploy.tmp
+echo.    :parse>>deploy.tmp
+echo.    set "tran=!_mode:~%%len%%,1!">>deploy.tmp
+echo.    set /a "len+=1">>deploy.tmp
+echo.    if "!tran!" NEQ "" ^(>>deploy.tmp
+echo.        if "!tran!"=="C" ^(>>deploy.tmp
+echo.            set "_C=1">>deploy.tmp
+echo.            goto parse>>deploy.tmp
+echo.        ^)>>deploy.tmp
+echo.        if "!tran!"=="F" ^(>>deploy.tmp
+echo.            set "_F=1">>deploy.tmp
+echo.            goto parse>>deploy.tmp
+echo.        ^)>>deploy.tmp
+echo.        if "!tran!"=="L" ^(>>deploy.tmp
+echo.            set "_L=1">>deploy.tmp
+echo.            goto parse>>deploy.tmp
+echo.        ^)>>deploy.tmp
+echo.        if "!tran!"=="Q" ^(>>deploy.tmp
+echo.            set "_Q=1">>deploy.tmp
+echo.            goto parse>>deploy.tmp
+echo.        ^)>>deploy.tmp
+echo.    ^)>>deploy.tmp
+echo.    SETLOCAL DISABLEDELAYEDEXPANSION>>deploy.tmp
+echo.^)>>deploy.tmp
+echo.echo %%~1>>deploy.tmp
+echo.FOR /F "skip=1 delims=" %%%%i IN ^('CertUtil -hashfile %%1 %%2'^) do if not defined mout set mout=%%%%i>>deploy.tmp
+if "%lcase%"=="1" goto lcase
+echo.if "%%_L%%"=="1" goto skipupper>>deploy.tmp
+echo.FOR /F "skip=2 delims=" %%%%I in ^('tree "\%%mout%%"'^) do if not defined moutupper set "moutupper=%%%%~I">>deploy.tmp
+echo.set "mout=%%moutupper:~3%%">>deploy.tmp
+echo.:skipupper>>deploy.tmp
+:lcase
+echo.if "%%_F%%"=="1" ^(>>deploy.tmp
+echo.    echo %%~n1%%~x1^>"%%~n1%%~x1.%%2.txt">>deploy.tmp
+echo.    echo %%2: %%mout%%^>^>"%%~n1%%~x1.%%2.txt">>deploy.tmp
+echo.    goto:eof>>deploy.tmp
+echo.^)>>deploy.tmp
+echo.set /p=%%2: ^< nul>>deploy.tmp
+echo.echo %%mout%%>>deploy.tmp
+echo.echo.>>deploy.tmp
+echo.echo ^| set /p=%%mout%%^| clip>>deploy.tmp
+echo.if "%%_Q%%"=="1" goto:eof>>deploy.tmp
+echo.echo Checksum has been copied to clipboard.>>deploy.tmp
+echo.echo.>>deploy.tmp
+echo.pause>>deploy.tmp
 del /f /q %_target% >nul 2>&1
 del /ah /f /q %_target% >nul 2>&1
 echo f |xcopy deploy.tmp %_target% /h /y >nul 2>&1 || call:err 920
@@ -173,7 +211,7 @@ attrib +r +h %_target%
 call:DelTmp
 goto Finished
 
-:Mode0
+:uninstall
 call:delreg
 del /f /q %_target% >nul 2>&1
 del /ah /f /q %_target% >nul 2>&1
@@ -217,11 +255,12 @@ goto:eof
 
 :DelReg
 REG DELETE HKCR\*\shell\checksum /f >nul 2>&1
-REG DELETE HKCR\*\shell\checksum_MD5 /f >nul 2>&1
-REG DELETE HKCR\*\shell\checksum_MD4 /f >nul 2>&1
-REG DELETE HKCR\*\shell\checksum_MD2 /f >nul 2>&1
-REG DELETE HKCR\*\shell\checksum_SHA1 /f >nul 2>&1
-REG DELETE HKCR\*\shell\checksum_SHA256 /f >nul 2>&1
-REG DELETE HKCR\*\shell\checksum_SHA384 /f >nul 2>&1
-REG DELETE HKCR\*\shell\checksum_SHA512 /f >nul 2>&1
+for %%i in (MD2 MD4 MD5 SHA1 SHA256 SHA384 SHA512) do (
+    REG DELETE HKCR\*\shell\checksum_%%i /f >nul 2>&1
+    REG DELETE HKCR\*\shell\checksuma_%%i /f >nul 2>&1
+    REG DELETE HKCR\*\shell\checksumc_%%i /f >nul 2>&1
+    REG DELETE HKCR\*\shell\checksumf_%%i /f >nul 2>&1
+    REG DELETE HKCR\*\shell\checksuml_%%i /f >nul 2>&1
+    REG DELETE HKCR\*\shell\checksumq_%%i /f >nul 2>&1
+)
 goto:eof
