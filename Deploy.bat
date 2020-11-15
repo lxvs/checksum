@@ -15,7 +15,7 @@ echo.  ^|  - Added quiet mode ^(do not show the dialog and only copy checksum ou
 echo.  ^|  - Added output-to-file mode.
 echo.  ^|  - Many improvements and optimizations.
 echo.  ^|  
-echo.  ^| %_github%
+echo.  ^| %_crinfo%
 echo.
 call:deltmp
 set /p=^> <nul
@@ -148,7 +148,7 @@ echo.@echo off>deploy.tmp || call:err 610
 attrib +h deploy.tmp
 echo.title %_title% %_version%>>deploy.tmp
 echo.rem %_title% %_version% updated on %_date%>>deploy.tmp
-echo.rem %_github%>>deploy.tmp
+echo.rem %_crinfo%>>deploy.tmp
 echo.if "%%~1"=="" goto:eof>>deploy.tmp
 echo.if not exist "%%~1" goto:eof>>deploy.tmp
 echo.if "%%~z1"=="0" goto:eof>>deploy.tmp
