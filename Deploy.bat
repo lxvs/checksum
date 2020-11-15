@@ -1,7 +1,7 @@
 @echo off
 cd %~dp0
 set "_title=Checksum"
-set "_version=4.3"
+set "_version=4.3a"
 set "_date=20201115"
 set "_target=%USERPROFILE%\checksum.bat"
 set "_icon=%SystemRoot%\System32\SHELL32.dll,-23"
@@ -11,7 +11,10 @@ title %_title% Deployment %_version%
 echo.
 echo.  - Release Notes -
 echo.
-echo.  ^| %_title% %_version%  updated on %_date%
+echo.  ^| %_title% 4.3a updated on 20201115
+echo.  ^|  - Added context menu shortcut keys, better not add more than 9 items to the checksum context menu, for now.
+echo.  ^|
+echo.  ^| %_title% 4.3  updated on 20201115
 echo.  ^|  - Added context menu icons.
 echo.  ^|  
 echo.  ^| %_title% 4.2  updated on 20201115
@@ -108,27 +111,36 @@ echo.
 echo.^> Adding checksum to context menu...
 call:delReg
 if "%ccmn%"=="1" (
-    REG ADD HKCR\*\shell\checksum /v "MUIVerb" /d "Checksum" /f >nul 2>&1 || call:err 1250
+    REG ADD HKCR\*\shell\checksum /v "MUIVerb" /d "Checksum (&Q)" /f >nul 2>&1 || call:err 1250
     REG ADD HKCR\*\shell\checksum /v "Icon" /d "%_icon%" /f >nul 2>&1 || call:err 1252
     REG ADD HKCR\*\shell\checksum /v "SubCommands"  /f >nul 2>&1 || call:err 1260
     REG ADD HKCR\*\shell\checksum\shell /f >nul 2>&1 || call:err 1270
+    SETLOCAL ENABLEDELAYEDEXPANSION
+    set ii=0
+    set index=0
     for %%i in (%alg%) do (
-        REG ADD HKCR\*\shell\checksum\shell\a_%%i /ve /d %%i /f >nul 2>&1 || call:err 1290
+        set /a ii=ii+1
+        set /a index=ii
+        REG ADD HKCR\*\shell\checksum\shell\a_%%i /ve /d "%%i (^&!index!)" /f >nul 2>&1 || call:err 1290
         REG ADD HKCR\*\shell\checksum\shell\a_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i" /f >nul 2>&1 || call:err 1300
+        set /a index+=algs
         if "%modf%"=="1" (
-            REG ADD HKCR\*\shell\checksum\shell\f_%%i /ve /d "To file - %%i" /f >nul 2>&1 || call:err 1110
+            REG ADD HKCR\*\shell\checksum\shell\f_%%i /ve /d "To file - %%i (^&!index!)" /f >nul 2>&1 || call:err 1110
             REG ADD HKCR\*\shell\checksum\shell\f_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i F" /f >nul 2>&1 || call:err 1120
+            set /a index+=algs
         )
         if "%modl%"=="1" (
-            REG ADD HKCR\*\shell\checksum\shell\l_%%i /ve /d "Lowercase - %%i" /f >nul 2>&1 || call:err 1150
+            REG ADD HKCR\*\shell\checksum\shell\l_%%i /ve /d "Lowercase - %%i (^&!index!)" /f >nul 2>&1 || call:err 1150
             REG ADD HKCR\*\shell\checksum\shell\l_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i L" /f >nul 2>&1 || call:err 1160
+            set /a index+=algs
         )
         if "%modq%"=="1" (
-            REG ADD HKCR\*\shell\checksum\shell\q_%%i /ve /d "To clipboard - %%i" /f >nul 2>&1 || call:err 1190
+            REG ADD HKCR\*\shell\checksum\shell\q_%%i /ve /d "To clipboard - %%i (^&!index!)" /f >nul 2>&1 || call:err 1190
             REG ADD HKCR\*\shell\checksum\shell\q_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i Q" /f >nul 2>&1 || call:err 1200
+            set /a index+=algs
         )
     )
-    
+    SETLOCAL DISABLEDELAYEDEXPANSION
 ) else (
     for %%i in (%alg%) do (
         REG ADD HKCR\*\shell\checksuma_%%i /ve /d "Checksum - "%%i /f >nul 2>&1 || call:err 560
