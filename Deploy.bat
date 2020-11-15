@@ -4,7 +4,7 @@ set "_title=Checksum"
 set "_version=4.2"
 set "_date=20201115"
 set "_target=%USERPROFILE%\checksum.bat"
-set "_github=https://github.com/lxvs/checksum"
+set "_crinfo=https://github.com/lxvs/checksum"
 title %_title% Deployment %_version%
 :init
 echo.
