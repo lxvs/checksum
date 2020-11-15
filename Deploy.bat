@@ -1,9 +1,10 @@
 @echo off
 cd %~dp0
 set "_title=Checksum"
-set "_version=4.2"
+set "_version=4.3"
 set "_date=20201115"
 set "_target=%USERPROFILE%\checksum.bat"
+set "_icon=%SystemRoot%\System32\SHELL32.dll,-23"
 set "_crinfo=https://github.com/lxvs/checksum"
 title %_title% Deployment %_version%
 :init
@@ -11,6 +12,9 @@ echo.
 echo.  - Release Notes -
 echo.
 echo.  ^| %_title% %_version%  updated on %_date%
+echo.  ^|  - Added context menu icons.
+echo.  ^|  
+echo.  ^| %_title% 4.2  updated on 20201115
 echo.  ^|  - Added quiet mode ^(do not show the dialog and only copy checksum output^).
 echo.  ^|  - Added output-to-file mode.
 echo.  ^|  - Many improvements and optimizations.
@@ -105,6 +109,7 @@ echo.^> Adding checksum to context menu...
 call:delReg
 if "%ccmn%"=="1" (
     REG ADD HKCR\*\shell\checksum /v "MUIVerb" /d "Checksum" /f >nul 2>&1 || call:err 1250
+    REG ADD HKCR\*\shell\checksum /v "Icon" /d "%_icon%" /f >nul 2>&1 || call:err 1252
     REG ADD HKCR\*\shell\checksum /v "SubCommands"  /f >nul 2>&1 || call:err 1260
     REG ADD HKCR\*\shell\checksum\shell /f >nul 2>&1 || call:err 1270
     for %%i in (%alg%) do (
@@ -127,17 +132,21 @@ if "%ccmn%"=="1" (
 ) else (
     for %%i in (%alg%) do (
         REG ADD HKCR\*\shell\checksuma_%%i /ve /d "Checksum - "%%i /f >nul 2>&1 || call:err 560
+        REG ADD HKCR\*\shell\checksuma_%%i /v "Icon" /d "%_icon%" /f >nul 2>&1 || call:err 1330
         REG ADD HKCR\*\shell\checksuma_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i" /f >nul 2>&1 || call:err 570
         if "%modf%"=="1" (
             REG ADD HKCR\*\shell\checksumf_%%i /ve /d "Checksum to file - %%i" /f >nul 2>&1 || call:err 1161
+            REG ADD HKCR\*\shell\checksumf_%%i /v "Icon" /d "%_icon%" /f >nul 2>&1 || call:err 1360
             REG ADD HKCR\*\shell\checksumf_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i F" /f >nul 2>&1 || call:err 1170
         )
         if "%modl%"=="1" (
             REG ADD HKCR\*\shell\checksuml_%%i /ve /d "Checksum lowercase - %%i" /f >nul 2>&1 || call:err 1201
+            REG ADD HKCR\*\shell\checksuml_%%i /v "Icon" /d "%_icon%" /f >nul 2>&1 || call:err 1361
             REG ADD HKCR\*\shell\checksuml_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i L" /f >nul 2>&1 || call:err 1210
         )
         if "%modq%"=="1" (
             REG ADD HKCR\*\shell\checksumq_%%i /ve /d "Checksum to clipboard - %%i" /f >nul 2>&1 || call:err 1240
+            REG ADD HKCR\*\shell\checksumq_%%i /v "Icon" /d "%_icon%" /f >nul 2>&1 || call:err 1362
             REG ADD HKCR\*\shell\checksumq_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i Q" /f >nul 2>&1 || call:err 1251
         )
     )
