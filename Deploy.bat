@@ -1,8 +1,8 @@
 @echo off
 cd %~dp0
 set "_title=Checksum"
-set "_version=4.3a"
-set "_date=20201115"
+set "_version=4.3b"
+set "_date=20201116"
 set "_target=%USERPROFILE%\checksum.bat"
 set "_icon=%SystemRoot%\System32\SHELL32.dll,-23"
 set "_crinfo=https://github.com/lxvs/checksum"
@@ -11,6 +11,9 @@ title %_title% Deployment %_version%
 echo.
 echo.  - Release Notes -
 echo.
+echo.  ^| %_title% 4.3b updated on 20201116
+echo.  ^|  - Added context menu shortcut keys for non-cascaded menu.
+echo.  ^|
 echo.  ^| %_title% 4.3a updated on 20201115
 echo.  ^|  - Added context menu shortcut keys, better not add more than 9 items to the checksum context menu, for now.
 echo.  ^|
@@ -142,26 +145,34 @@ if "%ccmn%"=="1" (
     )
     SETLOCAL DISABLEDELAYEDEXPANSION
 ) else (
+    SETLOCAL ENABLEDELAYEDEXPANSION
+    set ii=0
     for %%i in (%alg%) do (
-        REG ADD HKCR\*\shell\checksuma_%%i /ve /d "Checksum - "%%i /f >nul 2>&1 || call:err 560
+        set /a ii+=1
+        if "!ii!"=="1" (set "sckey=(&Q)") else set "sckey="
+        REG ADD HKCR\*\shell\checksuma_%%i /ve /d "Checksum - %%i !sckey!" /f >nul 2>&1 || call:err 560
         REG ADD HKCR\*\shell\checksuma_%%i /v "Icon" /d "%_icon%" /f >nul 2>&1 || call:err 1330
         REG ADD HKCR\*\shell\checksuma_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i" /f >nul 2>&1 || call:err 570
         if "%modf%"=="1" (
-            REG ADD HKCR\*\shell\checksumf_%%i /ve /d "Checksum to file - %%i" /f >nul 2>&1 || call:err 1161
+            if "!ii!"=="1" (set "sckey=(&F)") else set "sckey="
+            REG ADD HKCR\*\shell\checksumf_%%i /ve /d "Checksum to file - %%i !sckey!" /f >nul 2>&1 || call:err 1161
             REG ADD HKCR\*\shell\checksumf_%%i /v "Icon" /d "%_icon%" /f >nul 2>&1 || call:err 1360
             REG ADD HKCR\*\shell\checksumf_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i F" /f >nul 2>&1 || call:err 1170
         )
         if "%modl%"=="1" (
-            REG ADD HKCR\*\shell\checksuml_%%i /ve /d "Checksum lowercase - %%i" /f >nul 2>&1 || call:err 1201
+            if "!ii!"=="1" (set "sckey=(&L)") else set "sckey="
+            REG ADD HKCR\*\shell\checksuml_%%i /ve /d "Checksum lowercase - %%i !sckey!" /f >nul 2>&1 || call:err 1201
             REG ADD HKCR\*\shell\checksuml_%%i /v "Icon" /d "%_icon%" /f >nul 2>&1 || call:err 1361
             REG ADD HKCR\*\shell\checksuml_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i L" /f >nul 2>&1 || call:err 1210
         )
         if "%modq%"=="1" (
-            REG ADD HKCR\*\shell\checksumq_%%i /ve /d "Checksum to clipboard - %%i" /f >nul 2>&1 || call:err 1240
+            if "!ii!"=="1" (set "sckey=(&K)") else set "sckey="
+            REG ADD HKCR\*\shell\checksumq_%%i /ve /d "Checksum to clipboard - %%i !sckey!" /f >nul 2>&1 || call:err 1240
             REG ADD HKCR\*\shell\checksumq_%%i /v "Icon" /d "%_icon%" /f >nul 2>&1 || call:err 1362
             REG ADD HKCR\*\shell\checksumq_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i Q" /f >nul 2>&1 || call:err 1251
         )
     )
+    SETLOCAL DISABLEDELAYEDEXPANSION
 )
 echo.
 echo.^> Writting the batch file to %_target%...
