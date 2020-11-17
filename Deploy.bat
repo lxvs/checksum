@@ -1,26 +1,28 @@
 @echo off
 cd %~dp0
 set "_title=Checksum"
-set "_version=4.3b"
-set "_date=20201116"
+set "_version=4.3c"
+set "_date=20201117"
 set "_target=%USERPROFILE%\checksum.bat"
 set "_icon=%SystemRoot%\System32\SHELL32.dll,-23"
 set "_crinfo=https://github.com/lxvs/checksum"
 title %_title% Deployment %_version%
-:init
 echo.
 echo.  - Release Notes -
 echo.
-echo.  ^| %_title% 4.3b updated on 20201116
+echo.  ^| 4.3c updated on 20201117
+echo.  ^|  - Added some minor improvements.
+echo.  ^|
+echo.  ^| 4.3b updated on 20201116
 echo.  ^|  - Added context menu shortcut keys for non-cascaded menu.
 echo.  ^|
-echo.  ^| %_title% 4.3a updated on 20201115
+echo.  ^| 4.3a updated on 20201115
 echo.  ^|  - Added context menu shortcut keys, better not add more than 9 items to the checksum context menu, for now.
 echo.  ^|
-echo.  ^| %_title% 4.3  updated on 20201115
+echo.  ^| 4.3  updated on 20201115
 echo.  ^|  - Added context menu icons.
 echo.  ^|  
-echo.  ^| %_title% 4.2  updated on 20201115
+echo.  ^| 4.2  updated on 20201115
 echo.  ^|  - Added quiet mode ^(do not show the dialog and only copy checksum output^).
 echo.  ^|  - Added output-to-file mode.
 echo.  ^|  - Many improvements and optimizations.
@@ -67,8 +69,10 @@ if /i "%mod%"=="q" goto:eof
 if /i "%mod%"=="quit" goto:eof
 if /i "%mod%"=="exit" goto:eof
 set cfmd=
+set cfmd2=
 set lcase=
 if /i "%mod:~-1%"=="Y" (set "mod=%mod:~,-1%" & set cfmd=1)
+if "%cfmd%"=="1" if /i "%mod:~-1%"=="Y" (set "mod=%mod:~,-1%" & set cfmd2=1)
 if /i "%mod:~-1%"=="L" (set "mod=%mod:~,-1%" & set lcase=1)
 set /a mod=%mod% >nul 2>&1 || goto Unexp
 if "%mod%"=="0" goto Unexp
@@ -255,8 +259,8 @@ echo.
 echo.^> Deployment is finished.
 echo.
 set /p=^> <nul
-pause
-exit
+if "%cfmd2%" NEQ "1" pause
+goto:eof
 
 :Finished_0
 echo. 
@@ -266,7 +270,7 @@ echo.^> If checksum items still exist in context menu, please run this script as
 echo.
 set /p=^> <nul
 pause
-exit
+goto:eof
 
 :err
 call:deltmp
@@ -278,7 +282,7 @@ echo.^> Please run this script as administrator.
 echo.
 set /p=^> <nul
 pause
-exit
+goto:eof
 
 :DelTmp
 del /f /q deploy.tmp >nul 2>&1
