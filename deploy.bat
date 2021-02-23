@@ -1,42 +1,15 @@
 @echo off & setlocal
 cd %~dp0
 set "_title=Checksum"
-set "_version=4.4"
-set "_date=20201119"
+set "_version=4.4.1"
+set "_date=2021-02-23"
 set "_target=%USERPROFILE%\checksum.bat"
 set "_icon=%SystemRoot%\System32\SHELL32.dll,-23"
 set "_crinfo=https://github.com/lxvs/checksum"
 title %_title% Deployment %_version%
-echo.
-echo.  - Release Notes -
-echo.
-echo.  ^| 4.4  updated on 20201119
-echo.  ^|  - Fixed a bug that running checksum in CMD can get a wrong output.
-echo.  ^|  - Improved shortcut key binding.
-echo.  ^|  - Other optimizations.
-echo.  ^|
-echo.  ^| 4.3c updated on 20201117
-echo.  ^|  - Added some minor improvements.
-echo.  ^|
-echo.  ^| 4.3b updated on 20201116
-echo.  ^|  - Added context menu shortcut keys for non-cascaded menu.
-echo.  ^|
-echo.  ^| 4.3a updated on 20201115
-echo.  ^|  - Added context menu shortcut keys, better not add more than 9 items to the checksum context menu, for now.
-echo.  ^|
-echo.  ^| 4.3  updated on 20201115
-echo.  ^|  - Added context menu icons.
-echo.  ^|  
-echo.  ^| 4.2  updated on 20201115
-echo.  ^|  - Added quiet mode ^(do not show the dialog and only copy checksum output^).
-echo.  ^|  - Added output-to-file mode.
-echo.  ^|  - Many improvements and optimizations.
-echo.  ^|  
-echo.  ^| %_crinfo%
-echo.
+echo.^> Release Notes won't show here since 4.4.1.
+echo.^> Please see CHANGELOG.
 call:deltmp
-set /p=^> <nul
-pause
 :ModeDisp
 echo.
 echo.^> Please choose one algorithm ^(input the numbering^):

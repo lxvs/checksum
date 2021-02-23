@@ -1,0 +1,82 @@
+UNRELEASED
+
+	* BUGFIX: too much run as admin prompt shows up when deploying
+	          without admin priviledge.
+
+4.4.1 - 2021-02-23  Johnny Appleseed
+
+	* IMPROVEMENT: introduce the CHANGELOG file.
+	* IMPROVEMENT: rename 'Deploy.bat' to 'deploy.bat'.
+
+4.4.0 - 2020-11-19  Johnny Appleseed
+
+	* BUGFIX: runing checksum in cmd.exe can get a wrong output.
+	* IMPROVEMENT: shortcut key binding.
+	* IMPROVEMENT: other optimizations.
+
+4.3.3 - 2020-11-17  Johnny Appleseed
+
+	* IMPROVEMENT: some minor improvements.
+
+4.3.2 - 2020-11-16  Johnny Appleseed
+
+	* ADD: context menu shortcut keys for non-cascaded menu items.
+
+4.3.0 - 2020-11-15  Johnny Appleseed
+
+	* ADD: context menu shortcut keys, but cannot more than 9 items.
+	* ADD: context menu icons.
+
+4.2.0 - 2020-11-15  Johnny Appleseed
+
+	* NEW: quiet mode.
+	* NEW: output-to-file mode.
+	* IMPROVEMENT: many improvements and optimizations.
+
+4.1.0 - 2020-11-11  Johnny Appleseed
+
+	* NEW: cascaded context menu support.
+
+4.0.3 - 2020-11-05  Johnny Appleseed
+
+	* NEW: lowercase deployment support.
+
+4.0.2 - 2020-11-05  Johnny Appleseed
+
+	* NEW: multi-algorithm deployment support.
+
+4.0.1 - 2020-10-29  Johnny Appleseed
+
+	* NEW: more algorithms: MD4, MD2 SHA1, SHA256, SHA384, SHA512.
+
+3.0.1 - 2020-10-20  Johnny Appleseed
+
+	* BUGFIX: first 3 characters of lower case MD5 output was omitted.
+	* IMPROVEMENT: Improved performance when calculates a empty file.
+
+3.0.0 - 2020-10-15  Johnny Appleseed
+
+	* IMPROVEMENT: Deploy to user's folder now.
+	* IMPROVEMENT: Codes improved.
+
+2.0.0 - 2020-10-12  Johnny Appleseed
+
+	* NEW: mode selection function.
+	* NEW: undeployment function.
+	* NEW: capital toggle function.
+	* BUGFIX: happens when there is no argument.
+	* BUGFIX: Minor bugfixes.
+	* IMPROVEMENT:Look & feel improvements.
+
+1.2.0 - 2020-09-19  Johnny Appleseed
+
+	* IMPROVEMENT: Set MD5.bat to hidden.
+	* IMPROVEMENT: Now will delete the old MD5.bat before copying.
+	* IMPROVEMENT: Added a title.
+
+1.1.0 - 2020-08-19  Johnny Appleseed
+
+	* IMPROVEMENT: Added execution Feedback.
+	* IMPROVEMENT: Now MD5 output is in uppercase.
+	* IMPROVEMENT: Removed double quote in the first line output.
+	* IMPROVEMENT: Removed spaces of the output.
