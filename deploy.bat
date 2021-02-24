@@ -97,10 +97,10 @@ echo;^> Adding checksum to context menu...
 call:delReg
 if "%ccmn%"=="1" (goto ccmn1) else goto ccmn0
 :ccmn1
-REG ADD HKCR\*\shell\checksum /v "MUIVerb" /d "Checksum (&Q)" /f >nul 2>&1 || call:err 1250
-REG ADD HKCR\*\shell\checksum /v "Icon" /d "%_icon%" /f >nul 2>&1 || call:err 1252
-REG ADD HKCR\*\shell\checksum /v "SubCommands"  /f >nul 2>&1 || call:err 1260
-REG ADD HKCR\*\shell\checksum\shell /f >nul 2>&1 || call:err 1270
+REG ADD HKCR\*\shell\checksum /v "MUIVerb" /d "Checksum (&Q)" /f >nul 2>&1 || ((call:err 1250) & goto:eof)
+REG ADD HKCR\*\shell\checksum /v "Icon" /d "%_icon%" /f >nul 2>&1 || ((call:err 1252) & goto:eof)
+REG ADD HKCR\*\shell\checksum /v "SubCommands"  /f >nul 2>&1 || ((call:err 1260) & goto:eof)
+REG ADD HKCR\*\shell\checksum\shell /f >nul 2>&1 || ((call:err 1270) & goto:eof)
 SETLOCAL ENABLEDELAYEDEXPANSION
 set "index=0"
 set "scnum=0"
@@ -110,28 +110,28 @@ for %%i in (%alg%) do (
     set /a scnum=index
     if !scnum! GEQ 10 (set "sckey=") else set "sckey= (&!scnum!)"
     if !scnum! EQU 10 set "sckey= (&0)"
-    REG ADD HKCR\*\shell\checksum\shell\a_%%i /ve /d "%%i!sckey!" /f >nul 2>&1 || call:err 1290
-    REG ADD HKCR\*\shell\checksum\shell\a_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i" /f >nul 2>&1 || call:err 1300
+    REG ADD HKCR\*\shell\checksum\shell\a_%%i /ve /d "%%i!sckey!" /f >nul 2>&1 || ((call:err 1290) & goto:eof)
+    REG ADD HKCR\*\shell\checksum\shell\a_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i" /f >nul 2>&1 || ((call:err 1300) & goto:eof)
     if "%modf%"=="1" (
         set /a scnum+=algs
         if !scnum! GEQ 10 (set "sckey=") else set "sckey= (&!scnum!)"
         if !scnum! EQU 10 set "sckey= (&0)"
-        REG ADD HKCR\*\shell\checksum\shell\f_%%i /ve /d "To file - %%i!sckey!" /f >nul 2>&1 || call:err 1110
-        REG ADD HKCR\*\shell\checksum\shell\f_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i F" /f >nul 2>&1 || call:err 1120
+        REG ADD HKCR\*\shell\checksum\shell\f_%%i /ve /d "To file - %%i!sckey!" /f >nul 2>&1 || ((call:err 1110) & goto:eof)
+        REG ADD HKCR\*\shell\checksum\shell\f_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i F" /f >nul 2>&1 || ((call:err 1120) & goto:eof)
     )
     if "%modl%"=="1" (
         set /a scnum+=algs
         if !scnum! GEQ 10 (set "sckey=") else set "sckey= (&!scnum!)"
         if !scnum! EQU 10 set "sckey= (&0)"
-        REG ADD HKCR\*\shell\checksum\shell\l_%%i /ve /d "Lowercase - %%i!sckey!" /f >nul 2>&1 || call:err 1150
-        REG ADD HKCR\*\shell\checksum\shell\l_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i L" /f >nul 2>&1 || call:err 1160
+        REG ADD HKCR\*\shell\checksum\shell\l_%%i /ve /d "Lowercase - %%i!sckey!" /f >nul 2>&1 || ((call:err 1150) & goto:eof)
+        REG ADD HKCR\*\shell\checksum\shell\l_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i L" /f >nul 2>&1 || ((call:err 1160) & goto:eof)
     )
     if "%modq%"=="1" (
         set /a scnum+=algs
         if !scnum! GEQ 10 (set "sckey=") else set "sckey= (&!scnum!)"
         if !scnum! EQU 10 set "sckey= (&0)"
-        REG ADD HKCR\*\shell\checksum\shell\q_%%i /ve /d "To clipboard - %%i!sckey!" /f >nul 2>&1 || call:err 1190
-        REG ADD HKCR\*\shell\checksum\shell\q_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i Q" /f >nul 2>&1 || call:err 1200
+        REG ADD HKCR\*\shell\checksum\shell\q_%%i /ve /d "To clipboard - %%i!sckey!" /f >nul 2>&1 || ((call:err 1190) & goto:eof)
+        REG ADD HKCR\*\shell\checksum\shell\q_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i Q" /f >nul 2>&1 || ((call:err 1200) & goto:eof)
     )
 )
 SETLOCAL DISABLEDELAYEDEXPANSION
@@ -141,26 +141,26 @@ SETLOCAL ENABLEDELAYEDEXPANSION
 set "scq=1" & set "scf=1" & set "scl=1" & set "sck=1"
 for %%i in (%alg%) do (
     if "!scq!"=="1" (set "scq= (&Q)") else set scq=
-    REG ADD HKCR\*\shell\checksuma_%%i /ve /d "Checksum - %%i!scq!" /f >nul 2>&1 || call:err 560
-    REG ADD HKCR\*\shell\checksuma_%%i /v "Icon" /d "%_icon%" /f >nul 2>&1 || call:err 1330
-    REG ADD HKCR\*\shell\checksuma_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i" /f >nul 2>&1 || call:err 570
+    REG ADD HKCR\*\shell\checksuma_%%i /ve /d "Checksum - %%i!scq!" /f >nul 2>&1 || ((call:err 560) & goto:eof)
+    REG ADD HKCR\*\shell\checksuma_%%i /v "Icon" /d "%_icon%" /f >nul 2>&1 || ((call:err 1330) & goto:eof)
+    REG ADD HKCR\*\shell\checksuma_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i" /f >nul 2>&1 || ((call:err 570) & goto:eof)
     if "%modf%"=="1" (
         if "!scf!"=="1" (set "scf= (&F)") else set scf=
-        REG ADD HKCR\*\shell\checksumf_%%i /ve /d "Checksum to file - %%i!scf!" /f >nul 2>&1 || call:err 1161
-        REG ADD HKCR\*\shell\checksumf_%%i /v "Icon" /d "%_icon%" /f >nul 2>&1 || call:err 1360
-        REG ADD HKCR\*\shell\checksumf_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i F" /f >nul 2>&1 || call:err 1170
+        REG ADD HKCR\*\shell\checksumf_%%i /ve /d "Checksum to file - %%i!scf!" /f >nul 2>&1 || ((call:err 1161) & goto:eof)
+        REG ADD HKCR\*\shell\checksumf_%%i /v "Icon" /d "%_icon%" /f >nul 2>&1 || ((call:err 1360) & goto:eof)
+        REG ADD HKCR\*\shell\checksumf_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i F" /f >nul 2>&1 || ((call:err 1170) & goto:eof)
     )
     if "%modl%"=="1" (
         if "!scl!"=="1" (set "scl= (&L)") else set scl=
-        REG ADD HKCR\*\shell\checksuml_%%i /ve /d "Checksum lowercase - %%i!scl!" /f >nul 2>&1 || call:err 1201
-        REG ADD HKCR\*\shell\checksuml_%%i /v "Icon" /d "%_icon%" /f >nul 2>&1 || call:err 1361
-        REG ADD HKCR\*\shell\checksuml_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i L" /f >nul 2>&1 || call:err 1210
+        REG ADD HKCR\*\shell\checksuml_%%i /ve /d "Checksum lowercase - %%i!scl!" /f >nul 2>&1 || ((call:err 1201) & goto:eof)
+        REG ADD HKCR\*\shell\checksuml_%%i /v "Icon" /d "%_icon%" /f >nul 2>&1 || ((call:err 1361) & goto:eof)
+        REG ADD HKCR\*\shell\checksuml_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i L" /f >nul 2>&1 || ((call:err 1210) & goto:eof)
     )
     if "%modq%"=="1" (
         if "!sck!"=="1" (set "sck= (&K)") else set sck=
-        REG ADD HKCR\*\shell\checksumq_%%i /ve /d "Checksum to clipboard - %%i!sck!" /f >nul 2>&1 || call:err 1240
-        REG ADD HKCR\*\shell\checksumq_%%i /v "Icon" /d "%_icon%" /f >nul 2>&1 || call:err 1362
-        REG ADD HKCR\*\shell\checksumq_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i Q" /f >nul 2>&1 || call:err 1251
+        REG ADD HKCR\*\shell\checksumq_%%i /ve /d "Checksum to clipboard - %%i!sck!" /f >nul 2>&1 || ((call:err 1240) & goto:eof)
+        REG ADD HKCR\*\shell\checksumq_%%i /v "Icon" /d "%_icon%" /f >nul 2>&1 || ((call:err 1362) & goto:eof)
+        REG ADD HKCR\*\shell\checksumq_%%i\command /ve /d "\"%_target%\" \"%%1\" %%i Q" /f >nul 2>&1 || ((call:err 1251) & goto:eof)
     )
 )
 SETLOCAL DISABLEDELAYEDEXPANSION
@@ -168,7 +168,7 @@ goto afterccmn
 :afterccmn
 echo;
 echo;^> Writting the batch file to %_target%...
-echo;@echo off>deploy.tmp || call:err 610
+echo;@echo off>deploy.tmp || ((call:err 610) & goto:eof)
 attrib +h deploy.tmp
 echo;title %_title% %_version%>>deploy.tmp
 echo;rem %_title% %_version% updated on %_date%>>deploy.tmp
@@ -232,7 +232,7 @@ echo;echo;>>deploy.tmp
 echo;pause>>deploy.tmp
 del /f /q %_target% >nul 2>&1
 del /ah /f /q %_target% >nul 2>&1
-echo f |xcopy deploy.tmp %_target% /h /y >nul 2>&1 || call:err 920
+echo f |xcopy deploy.tmp %_target% /h /y >nul 2>&1 || ((call:err 920) & goto:eof)
 attrib +r +h %_target%
 call:DelTmp
 goto Finished
@@ -241,7 +241,7 @@ goto Finished
 call:delreg
 del /f /q %_target% >nul 2>&1
 del /ah /f /q %_target% >nul 2>&1
-if exist %_target% (call:err 1020)
+if exist %_target% (call:err 1020) & goto:eof
 goto Finished_0
 
 :Finished
