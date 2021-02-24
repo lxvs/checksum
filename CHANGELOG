@@ -3,6 +3,10 @@ UNRELEASED
 	* BUGFIX: too much run as admin prompt shows up when deploying
 	          without admin priviledge.
 
+4.4.1 - 2021-02-24  Johnny Appleseed
+
+	* README: updated readme.md.
+
 4.4.1 - 2021-02-23  Johnny Appleseed
 
 	* IMPROVEMENT: introduce the CHANGELOG file.
