@@ -1,4 +1,4 @@
-2021-02-26  lxvs
+4.4.4 - 2021-02-26  lxvs
 
 	* CHANGE SIGNING NAME FROM JOHNNY APPLESEED TO LXVS.
 	* BUGFIX: possibly cannot write into deploy.tmp correctly.
@@ -7,6 +7,7 @@
 	* IMPROVEMENT: replace 'echo;...' with 'echo ...'.
 	* IMPROVEMENT: remove 'rem tilte version' in checksum.bat.
 	* IMPROVEMENT: add 'setlocal' in checksum.bat.
+	* IMPROVEMENT: add title version crinfo in deploy.bat.
 
 4.4.3 - 2021-02-24  lxvs
 

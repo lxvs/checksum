@@ -1,7 +1,7 @@
 @echo off & setlocal
 cd %~dp0
 set "_title=Checksum"
-set "_version=4.4.2"
+set "_version=4.4.4"
 set "_target=%USERPROFILE%\checksum.bat"
 set "_icon=%SystemRoot%\System32\SHELL32.dll,-23"
 set "_crinfo=https://github.com/lxvs/checksum"
@@ -10,6 +10,9 @@ echo ^> Release Notes won't show here since 4.4.1.
 echo ^> Please see CHANGELOG.
 call:deltmp
 :ModeDisp
+echo;
+echo %_title% %_version%
+echo %_crinfo%
 echo;
 echo ^> Please choose one algorithm ^(input the numbering^):
 echo;
