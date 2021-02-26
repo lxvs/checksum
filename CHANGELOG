@@ -1,6 +1,7 @@
 2021-02-26  lxvs
 
 	* CHANGE SIGNING NAME FROM JOHNNY APPLESEED TO LXVS.
+	* BUGFIX: possibly cannot write into deploy.tmp correctly.
 	* IMPROVEMENT: remove update date.
 	* IMPROVEMENT: add gitattributes and set bat eol to crlf.
 

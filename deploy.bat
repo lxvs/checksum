@@ -167,68 +167,68 @@ goto afterccmn
 :afterccmn
 echo;
 echo;^> Writting the batch file to %_target%...
-echo;@echo off>deploy.tmp || ((call:err 610) & goto:eof)
+(echo;@echo off)>deploy.tmp || ((call:err 610) & goto:eof)
 attrib +h deploy.tmp
-echo;title %_title% %_version%>>deploy.tmp
-echo;rem %_title% %_version%>>deploy.tmp
-echo;rem %_crinfo%>>deploy.tmp
-echo;if "%%~1"=="" goto:eof>>deploy.tmp
-echo;if not exist "%%~1" goto:eof>>deploy.tmp
-echo;if "%%~z1"=="0" goto:eof>>deploy.tmp
-echo;if "%%3" NEQ "" ^(>>deploy.tmp
-echo;    SETLOCAL ENABLEDELAYEDEXPANSION>>deploy.tmp
-echo;    set "_mode=%%3">>deploy.tmp
-echo;    set "_C=0">>deploy.tmp
-echo;    set "_F=0">>deploy.tmp
-echo;    set "_L=0">>deploy.tmp
-echo;    set "_Q=0">>deploy.tmp
-echo;    set "len=0">>deploy.tmp
-echo;    :parse>>deploy.tmp
-echo;    set "tran=!_mode:~%%len%%,1!">>deploy.tmp
-echo;    set /a "len+=1">>deploy.tmp
-echo;    if "!tran!" NEQ "" ^(>>deploy.tmp
-echo;        if "!tran!"=="C" ^(>>deploy.tmp
-echo;            set "_C=1">>deploy.tmp
-echo;            goto parse>>deploy.tmp
-echo;        ^)>>deploy.tmp
-echo;        if "!tran!"=="F" ^(>>deploy.tmp
-echo;            set "_F=1">>deploy.tmp
-echo;            goto parse>>deploy.tmp
-echo;        ^)>>deploy.tmp
-echo;        if "!tran!"=="L" ^(>>deploy.tmp
-echo;            set "_L=1">>deploy.tmp
-echo;            goto parse>>deploy.tmp
-echo;        ^)>>deploy.tmp
-echo;        if "!tran!"=="Q" ^(>>deploy.tmp
-echo;            set "_Q=1">>deploy.tmp
-echo;            goto parse>>deploy.tmp
-echo;        ^)>>deploy.tmp
-echo;    ^)>>deploy.tmp
-echo;    SETLOCAL DISABLEDELAYEDEXPANSION>>deploy.tmp
-echo;^)>>deploy.tmp
-echo;echo %%~1>>deploy.tmp
-echo;set mout=>>deploy.tmp
-echo;FOR /F "skip=1 delims=" %%%%i IN ^('CertUtil -hashfile %%1 %%2'^) do if not defined mout set mout=%%%%i>>deploy.tmp
+(echo;title %_title% %_version%)>>deploy.tmp
+(echo;rem %_title% %_version%)>>deploy.tmp
+(echo;rem %_crinfo%)>>deploy.tmp
+(echo;if "%%~1"=="" goto:eof)>>deploy.tmp
+(echo;if not exist "%%~1" goto:eof)>>deploy.tmp
+(echo;if "%%~z1"=="0" goto:eof)>>deploy.tmp
+(echo;if "%%3" NEQ "" ^()>>deploy.tmp
+(echo;    SETLOCAL ENABLEDELAYEDEXPANSION)>>deploy.tmp
+(echo;    set "_mode=%%3")>>deploy.tmp
+(echo;    set "_C=0")>>deploy.tmp
+(echo;    set "_F=0")>>deploy.tmp
+(echo;    set "_L=0")>>deploy.tmp
+(echo;    set "_Q=0")>>deploy.tmp
+(echo;    set "len=0")>>deploy.tmp
+(echo;    :parse)>>deploy.tmp
+(echo;    set "tran=!_mode:~%%len%%,1!")>>deploy.tmp
+(echo;    set /a "len+=1")>>deploy.tmp
+(echo;    if "!tran!" NEQ "" ^()>>deploy.tmp
+(echo;        if "!tran!"=="C" ^()>>deploy.tmp
+(echo;            set "_C=1")>>deploy.tmp
+(echo;            goto parse)>>deploy.tmp
+(echo;        ^))>>deploy.tmp
+(echo;        if "!tran!"=="F" ^()>>deploy.tmp
+(echo;            set "_F=1")>>deploy.tmp
+(echo;            goto parse)>>deploy.tmp
+(echo;        ^))>>deploy.tmp
+(echo;        if "!tran!"=="L" ^()>>deploy.tmp
+(echo;            set "_L=1")>>deploy.tmp
+(echo;            goto parse)>>deploy.tmp
+(echo;        ^))>>deploy.tmp
+(echo;        if "!tran!"=="Q" ^()>>deploy.tmp
+(echo;            set "_Q=1")>>deploy.tmp
+(echo;            goto parse)>>deploy.tmp
+(echo;        ^))>>deploy.tmp
+(echo;    ^))>>deploy.tmp
+(echo;    SETLOCAL DISABLEDELAYEDEXPANSION)>>deploy.tmp
+(echo;^))>>deploy.tmp
+(echo;echo %%~1)>>deploy.tmp
+(echo;set mout=)>>deploy.tmp
+(echo;FOR /F "skip=1 delims=" %%%%i IN ^('CertUtil -hashfile %%1 %%2'^) do if not defined mout set mout=%%%%i)>>deploy.tmp
 if "%lcase%"=="1" goto lcase
-echo;if "%%_L%%"=="1" goto skipupper>>deploy.tmp
-echo;set moutupper=>>deploy.tmp
-echo;FOR /F "skip=2 delims=" %%%%I in ^('tree "\%%mout%%"'^) do if not defined moutupper set "moutupper=%%%%~I">>deploy.tmp
-echo;set "mout=%%moutupper:~3%%">>deploy.tmp
-echo;:skipupper>>deploy.tmp
+(echo;if "%%_L%%"=="1" goto skipupper)>>deploy.tmp
+(echo;set moutupper=)>>deploy.tmp
+(echo;FOR /F "skip=2 delims=" %%%%I in ^('tree "\%%mout%%"'^) do if not defined moutupper set "moutupper=%%%%~I")>>deploy.tmp
+(echo;set "mout=%%moutupper:~3%%")>>deploy.tmp
+(echo;:skipupper)>>deploy.tmp
 :lcase
-echo;if "%%_F%%"=="1" ^(>>deploy.tmp
-echo;    echo %%~n1%%~x1^>"%%~n1%%~x1.%%2.txt">>deploy.tmp
-echo;    echo %%2: %%mout%%^>^>"%%~n1%%~x1.%%2.txt">>deploy.tmp
-echo;    goto:eof>>deploy.tmp
-echo;^)>>deploy.tmp
-echo;set /p=%%2: ^< nul>>deploy.tmp
-echo;echo %%mout%%>>deploy.tmp
-echo;echo;>>deploy.tmp
-echo;echo ^| set /p=%%mout%%^| clip>>deploy.tmp
-echo;if "%%_Q%%"=="1" goto:eof>>deploy.tmp
-echo;echo Checksum has been copied to clipboard.>>deploy.tmp
-echo;echo;>>deploy.tmp
-echo;pause>>deploy.tmp
+(echo;if "%%_F%%"=="1" ^()>>deploy.tmp
+(echo;    echo %%~n1%%~x1^>"%%~n1%%~x1.%%2.txt")>>deploy.tmp
+(echo;    echo %%2: %%mout%%^>^>"%%~n1%%~x1.%%2.txt")>>deploy.tmp
+(echo;    goto:eof)>>deploy.tmp
+(echo;^))>>deploy.tmp
+(echo;set /p=%%2: ^< nul)>>deploy.tmp
+(echo;echo %%mout%%)>>deploy.tmp
+(echo;echo;)>>deploy.tmp
+(echo;echo ^| set /p=%%mout%%^| clip)>>deploy.tmp
+(echo;if "%%_Q%%"=="1" goto:eof)>>deploy.tmp
+(echo;echo Checksum has been copied to clipboard.)>>deploy.tmp
+(echo;echo;)>>deploy.tmp
+(echo;pause)>>deploy.tmp
 del /f /q %_target% >nul 2>&1
 del /ah /f /q %_target% >nul 2>&1
 echo f |xcopy deploy.tmp %_target% /h /y >nul 2>&1 || ((call:err 920) & goto:eof)
