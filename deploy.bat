@@ -2,7 +2,6 @@
 cd %~dp0
 set "_title=Checksum"
 set "_version=4.4.2"
-set "_date=2021-02-24"
 set "_target=%USERPROFILE%\checksum.bat"
 set "_icon=%SystemRoot%\System32\SHELL32.dll,-23"
 set "_crinfo=https://github.com/lxvs/checksum"
@@ -171,7 +170,7 @@ echo;^> Writting the batch file to %_target%...
 echo;@echo off>deploy.tmp || ((call:err 610) & goto:eof)
 attrib +h deploy.tmp
 echo;title %_title% %_version%>>deploy.tmp
-echo;rem %_title% %_version% updated on %_date%>>deploy.tmp
+echo;rem %_title% %_version%>>deploy.tmp
 echo;rem %_crinfo%>>deploy.tmp
 echo;if "%%~1"=="" goto:eof>>deploy.tmp
 echo;if not exist "%%~1" goto:eof>>deploy.tmp
