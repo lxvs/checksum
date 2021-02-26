@@ -5,6 +5,8 @@
 	* IMPROVEMENT: remove update date.
 	* IMPROVEMENT: add gitattributes and set bat eol to crlf.
 	* IMPROVEMENT: replace 'echo;...' with 'echo ...'.
+	* IMPROVEMENT: remove 'rem tilte version' in checksum.bat.
+	* IMPROVEMENT: add 'setlocal' in checksum.bat.
 
 4.4.3 - 2021-02-24  lxvs
 

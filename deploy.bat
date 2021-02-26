@@ -169,9 +169,9 @@ echo;
 echo ^> Writting the batch file to %_target%...
 (echo @echo off)>deploy.tmp || ((call:err 610) & goto:eof)
 attrib +h deploy.tmp
-(echo title %_title% %_version%)>>deploy.tmp
-(echo rem %_title% %_version%)>>deploy.tmp
+(echo setlocal)>>deploy.tmp
 (echo rem %_crinfo%)>>deploy.tmp
+(echo title %_title% %_version%)>>deploy.tmp
 (echo if "%%~1"=="" goto:eof)>>deploy.tmp
 (echo if not exist "%%~1" goto:eof)>>deploy.tmp
 (echo if "%%~z1"=="0" goto:eof)>>deploy.tmp
