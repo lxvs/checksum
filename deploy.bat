@@ -1,7 +1,7 @@
 @echo off & setlocal
 cd %~dp0
 set "_title=Checksum"
-set "_version=4.4.4"
+set "_version=4.4.5"
 set "_target=%USERPROFILE%\checksum.bat"
 set "_icon=%SystemRoot%\System32\SHELL32.dll,-23"
 set "_crinfo=https://github.com/lxvs/checksum"
@@ -219,11 +219,7 @@ if "%lcase%"=="1" goto lcase
 (echo set "mout=%%moutupper:~3%%")>>deploy.tmp
 (echo :skipupper)>>deploy.tmp
 :lcase
-(echo if "%%_F%%"=="1" ^()>>deploy.tmp
-(echo     echo %%~n1%%~x1^>"%%~n1%%~x1.%%2.txt")>>deploy.tmp
-(echo     echo %%2: %%mout%%^>^>"%%~n1%%~x1.%%2.txt")>>deploy.tmp
-(echo     goto:eof)>>deploy.tmp
-(echo ^))>>deploy.tmp
+(echo if "%%_F%%"=="1" goto fileoutput)>>deploy.tmp
 (echo set /p=%%2: ^< nul)>>deploy.tmp
 (echo echo %%mout%%)>>deploy.tmp
 (echo echo;)>>deploy.tmp
@@ -232,6 +228,11 @@ if "%lcase%"=="1" goto lcase
 (echo echo Checksum has been copied to clipboard.)>>deploy.tmp
 (echo echo;)>>deploy.tmp
 (echo pause)>>deploy.tmp
+(echo goto:eof)>>deploy.tmp
+(echo :fileoutput)>>deploy.tmp
+(echo echo %%~n1%%~x1^>"%%~n1%%~x1.%%2.txt")>>deploy.tmp
+(echo echo %%2: %%mout%%^>^>"%%~n1%%~x1.%%2.txt")>>deploy.tmp
+(echo goto:eof)>>deploy.tmp
 del /f /q %_target% >nul 2>&1
 del /ah /f /q %_target% >nul 2>&1
 echo f |xcopy deploy.tmp %_target% /h /y >nul 2>&1 || ((call:err 920) & goto:eof)

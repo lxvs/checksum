@@ -1,3 +1,7 @@
+4.4.5 - 2021-03-01  lxvs
+
+	* BUGFIX: fails when filename contains parentheses.
+
 2021-02-26  lxvs
 
 	* README: add a more detailed help on usage.
