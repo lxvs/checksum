@@ -1,3 +1,9 @@
+4.4.6 - 2021-03-01  lxvs
+
+	* BUGFIX: filename displayed is not exact when containing '^'.
+	* IMPROVEMENT: change dumped file name from '<fn>.<alg>.txt' to
+	               '<fn>_<alg>.txt'. <fn>=filename, <alg>=algorithm.
+
 4.4.5 - 2021-03-01  lxvs
 
 	* BUGFIX: fails when filename contains parentheses.

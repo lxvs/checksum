@@ -1,7 +1,7 @@
 @echo off & setlocal
 cd %~dp0
 set "_title=Checksum"
-set "_version=4.4.5"
+set "_version=4.4.6"
 set "_target=%USERPROFILE%\checksum.bat"
 set "_icon=%SystemRoot%\System32\SHELL32.dll,-23"
 set "_crinfo=https://github.com/lxvs/checksum"
@@ -209,7 +209,8 @@ attrib +h deploy.tmp
 (echo     ^))>>deploy.tmp
 (echo     SETLOCAL DISABLEDELAYEDEXPANSION)>>deploy.tmp
 (echo ^))>>deploy.tmp
-(echo echo %%~1)>>deploy.tmp
+(echo set "fname=%%~1")>>deploy.tmp
+(echo echo %%fname:^^=^^^^%%)>>deploy.tmp
 (echo set mout=)>>deploy.tmp
 (echo FOR /F "skip=1 delims=" %%%%i IN ^('CertUtil -hashfile %%1 %%2'^) do if not defined mout set mout=%%%%i)>>deploy.tmp
 if "%lcase%"=="1" goto lcase
@@ -230,8 +231,10 @@ if "%lcase%"=="1" goto lcase
 (echo pause)>>deploy.tmp
 (echo goto:eof)>>deploy.tmp
 (echo :fileoutput)>>deploy.tmp
-(echo echo %%~n1%%~x1^>"%%~n1%%~x1.%%2.txt")>>deploy.tmp
-(echo echo %%2: %%mout%%^>^>"%%~n1%%~x1.%%2.txt")>>deploy.tmp
+(echo set "fnamef=%%~n1%%~x1")>>deploy.tmp
+(echo set "fnamefR=%%fnamef:^=^^%%")>>deploy.tmp
+(echo echo %%fnamefR%%^>"%%fnamef%%_%%2.txt")>>deploy.tmp
+(echo echo %%2: %%mout%%^>^>"%%fnamef%%_%%2.txt")>>deploy.tmp
 (echo goto:eof)>>deploy.tmp
 del /f /q %_target% >nul 2>&1
 del /ah /f /q %_target% >nul 2>&1
