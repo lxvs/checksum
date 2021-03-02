@@ -1,4 +1,4 @@
-2021-03-02  lxvs
+4.5.0 - 2021-03-02  lxvs
 
 	* NEW: colorful output (can also be disabled).
 	* IMPROVEMENT: replace '%~n1%~x1' with '%~nx1'.
