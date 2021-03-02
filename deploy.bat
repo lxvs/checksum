@@ -27,6 +27,7 @@ echo   ^| 128   Cascaded context menu
 echo   ^| 256   Also add lowercase output mode
 echo   ^| 512   Also add quietly-copy-to-clipboard mode
 echo   ^| 1024  Also add output-to-file mode
+echo   ^| 4096  Disable colorful output.
 echo   ^| 0     Uninstall
 echo;
 echo ^> You can choose multiple items by adding the numbering. For example,
@@ -67,6 +68,7 @@ set /a ccmn=mod/128%%2
 set /a modl=mod/256%%2
 set /a modq=mod/512%%2
 set /a modf=mod/1024%%2
+set /a dcol=mod/4096%%2
 set /a algs=alg0+alg1+alg2+alg3+alg4+alg5+alg6
 if "%algs%"=="0" goto unexp
 echo;
@@ -84,6 +86,7 @@ if "%ccmn%"=="1" set /p=, cascaded menu<nul
 if "%modl%"=="1" set /p=, lowercase mode<nul
 if "%modq%"=="1" set /p=, quiet mode<nul
 if "%modf%"=="1" set /p=, output-to-file mode<nul
+if "%dcol%"=="1" set /p=, colorful output disabled<nul
 set /p=, right? ^(Y^/N^): <nul
 if "%cfmd%"=="1" (
     set confirm=Y
@@ -172,6 +175,17 @@ echo;
 echo ^> Writting the batch file to %_target%...
 (echo @echo off)>deploy.tmp || ((call:err 610) & goto:eof)
 attrib +h deploy.tmp
+if "%dcol%"=="1" (
+    set algpre=
+    set fnmpre=
+    set outpre=
+    set suf=
+) else (
+    set "algpre=[92m"
+    set "fnmpre=[92m"
+    set "outpre=[93m"
+    set "suf=[0m"
+)
 (echo setlocal)>>deploy.tmp
 (echo rem %_crinfo%)>>deploy.tmp
 (echo title %_title% %_version%)>>deploy.tmp
@@ -209,8 +223,9 @@ attrib +h deploy.tmp
 (echo     ^))>>deploy.tmp
 (echo     SETLOCAL DISABLEDELAYEDEXPANSION)>>deploy.tmp
 (echo ^))>>deploy.tmp
-(echo set "fname=%%~1")>>deploy.tmp
-(echo echo %%fname:^^=^^^^%%)>>deploy.tmp
+(echo set "fpath=%%~dp1")>>deploy.tmp
+(echo set "fname=%%~nx1")>>deploy.tmp
+(echo echo %%fpath:^^=^^^^%%%fnmpre%%%fname:^^=^^^^%%%suf%)>>deploy.tmp
 (echo set mout=)>>deploy.tmp
 (echo FOR /F "skip=1 delims=" %%%%i IN ^('CertUtil -hashfile %%1 %%2'^) do if not defined mout set mout=%%%%i)>>deploy.tmp
 if "%lcase%"=="1" goto lcase
@@ -221,8 +236,8 @@ if "%lcase%"=="1" goto lcase
 (echo :skipupper)>>deploy.tmp
 :lcase
 (echo if "%%_F%%"=="1" goto fileoutput)>>deploy.tmp
-(echo set /p=%%2: ^< nul)>>deploy.tmp
-(echo echo %%mout%%)>>deploy.tmp
+(echo set /p=%algpre%%%2%suf%: ^<nul)>>deploy.tmp
+(echo echo %outpre%%%mout%%%suf%)>>deploy.tmp
 (echo echo;)>>deploy.tmp
 (echo echo ^| set /p=%%mout%%^| clip)>>deploy.tmp
 (echo if "%%_Q%%"=="1" goto:eof)>>deploy.tmp
@@ -231,7 +246,7 @@ if "%lcase%"=="1" goto lcase
 (echo pause)>>deploy.tmp
 (echo goto:eof)>>deploy.tmp
 (echo :fileoutput)>>deploy.tmp
-(echo set "fnamef=%%~n1%%~x1")>>deploy.tmp
+(echo set "fnamef=%%~nx1")>>deploy.tmp
 (echo set "fnamefR=%%fnamef:^=^^%%")>>deploy.tmp
 (echo echo %%fnamefR%%^>"%%fnamef%%_%%2.txt")>>deploy.tmp
 (echo echo %%2: %%mout%%^>^>"%%fnamef%%_%%2.txt")>>deploy.tmp
