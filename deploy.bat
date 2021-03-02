@@ -5,16 +5,16 @@ set "_version=4.4.6"
 set "_target=%USERPROFILE%\checksum.bat"
 set "_icon=%SystemRoot%\System32\SHELL32.dll,-23"
 set "_crinfo=https://github.com/lxvs/checksum"
-title %_title% Deployment %_version%
-echo ^> Release Notes won't show here since 4.4.1.
-echo ^> Please see CHANGELOG.
-call:deltmp
-:ModeDisp
-echo;
+title %_title% %_version% Deployment
 echo %_title% %_version%
 echo %_crinfo%
 echo;
-echo ^> Please choose one algorithm ^(input the numbering^):
+echo ^> Release Notes won't show here since 4.4.1.
+echo ^> Please see README and CHANGELOG.
+call:deltmp
+:ModeDisp
+echo;
+echo ^> Please choose algorithms ^& options
 echo;
 echo   ^| 1     MD2
 echo   ^| 2     MD4
@@ -32,15 +32,16 @@ echo   ^| 0     Uninstall
 echo;
 echo ^> You can choose multiple items by adding the numbering. For example,
 echo;
-echo   ^| 4+8+128     MD5 and SHA1, in a cascaded menu, UPPERCASE output only.
-echo   ^| 4+8+128L    MD5 and SHA1, in a cascaded menu, lowercase output only.
-echo   ^| 4+8+128+256 MD5 and SHA1, in a cascaded menu, UPPERCASE and lowercase output.
+echo   ^| 4+16         MD5 and SHA256, UPPERCASE output only.
+echo   ^| 4+16L        MD5 and SHA256, lowercase output only.
+echo   ^| 4+16+256     MD5 and SHA256, UPPERCASE and lowercase output.
+echo;
+echo ^> 16+512+1024 ^(1552^) is recommended.
 goto modeinput
 :Unexp
 echo;
 echo ^> Unexpected value input.
 :ModeInput
-echo;
 set /p=$ <nul
 set mod=
 set /p mod=
