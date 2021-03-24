@@ -190,11 +190,17 @@ if "%dcol%"=="1" (
 (echo setlocal)>>deploy.tmp
 (echo rem %_crinfo%)>>deploy.tmp
 (echo title %_title% %_version%)>>deploy.tmp
-(echo if "%%~1"=="" goto:eof)>>deploy.tmp
-(echo if not exist "%%~1" goto:eof)>>deploy.tmp
-(echo if "%%~z1"=="0" goto:eof)>>deploy.tmp
+(echo if "%%~1"=="" exit /b 1)>>deploy.tmp
+(echo SETLOCAL ENABLEDELAYEDEXPANSION)>>deploy.tmp
+(echo if not exist "%%~1" ^()>>deploy.tmp
+(echo     call:ChksmErr 1950 "file %%~1 does not exist.")>>deploy.tmp
+(echo     exit /b ^!ERRORLEVEL^!)>>deploy.tmp
+(echo ^))>>deploy.tmp
+(echo if "%%~z1"=="0" ^()>>deploy.tmp
+(echo     call:ChksmErr 1990 "file %%~1 is empty.")>>deploy.tmp
+(echo     exit /b ^!ERRORLEVEL^!)>>deploy.tmp
+(echo ^))>>deploy.tmp
 (echo if "%%3" NEQ "" ^()>>deploy.tmp
-(echo     SETLOCAL ENABLEDELAYEDEXPANSION)>>deploy.tmp
 (echo     set "_mode=%%3")>>deploy.tmp
 (echo     set "_C=0")>>deploy.tmp
 (echo     set "_F=0")>>deploy.tmp
@@ -222,13 +228,14 @@ if "%dcol%"=="1" (
 (echo             goto parse)>>deploy.tmp
 (echo         ^))>>deploy.tmp
 (echo     ^))>>deploy.tmp
-(echo     SETLOCAL DISABLEDELAYEDEXPANSION)>>deploy.tmp
 (echo ^))>>deploy.tmp
+(echo SETLOCAL DISABLEDELAYEDEXPANSION)>>deploy.tmp
 (echo set "fpath=%%~dp1")>>deploy.tmp
 (echo set "fname=%%~nx1")>>deploy.tmp
 (echo echo %%fpath:^^=^^^^%%%fnmpre%%%fname:^^=^^^^%%%suf%)>>deploy.tmp
 (echo set mout=)>>deploy.tmp
 (echo FOR /F "skip=1 delims=" %%%%i IN ^('CertUtil -hashfile %%1 %%2'^) do if not defined mout set mout=%%%%i)>>deploy.tmp
+(echo if /i "%%mout:~0,8%%"=="certutil" goto cuerr)>>deploy.tmp
 if "%lcase%"=="1" goto lcase
 (echo if "%%_L%%"=="1" goto skipupper)>>deploy.tmp
 (echo set moutupper=)>>deploy.tmp
@@ -241,17 +248,28 @@ if "%lcase%"=="1" goto lcase
 (echo echo %outpre%%%mout%%%suf%)>>deploy.tmp
 (echo echo;)>>deploy.tmp
 (echo echo ^| set /p=%%mout%%^| clip)>>deploy.tmp
-(echo if "%%_Q%%"=="1" goto:eof)>>deploy.tmp
+(echo if "%%_Q%%"=="1" exit /b 0)>>deploy.tmp
 (echo echo Checksum has been copied to clipboard.)>>deploy.tmp
 (echo echo;)>>deploy.tmp
 (echo pause)>>deploy.tmp
-(echo goto:eof)>>deploy.tmp
+(echo exit /b 0)>>deploy.tmp
 (echo :fileoutput)>>deploy.tmp
 (echo set "fnamef=%%~nx1")>>deploy.tmp
 (echo set "fnamefR=%%fnamef:^=^^%%")>>deploy.tmp
 (echo echo %%fnamefR%%^>"%%fnamef%%_%%2.txt")>>deploy.tmp
 (echo echo %%2: %%mout%%^>^>"%%fnamef%%_%%2.txt")>>deploy.tmp
-(echo goto:eof)>>deploy.tmp
+(echo exit /b 0)>>deploy.tmp
+(echo :cuerr)>>deploy.tmp
+(echo ^(certutil -hashfile %%1 %%2^)^>nul 2^>^&1)>>deploy.tmp
+(echo echo [93;101m%%mout:~10%%[0m)>>deploy.tmp
+(echo echo;)>>deploy.tmp
+(echo pause)>>deploy.tmp
+(echo exit /b %%ERRORLEVEL%%)>>deploy.tmp
+(echo :ChksmErr)>>deploy.tmp
+(echo echo [93;101mError^(%%1^): %%~2[0m)>>deploy.tmp
+(echo echo;)>>deploy.tmp
+(echo pause)>>deploy.tmp
+(echo exit /b %%1)>>deploy.tmp
 del /f /q %_target% >nul 2>&1
 del /ah /f /q %_target% >nul 2>&1
 echo f |xcopy deploy.tmp %_target% /h /y >nul 2>&1 || ((call:err 920) & goto:eof)
