@@ -1,6 +1,7 @@
 2021-03-24  lxvs
 
 	* NEW: exit with error code.
+	* NEW: deploy.bat: exit with error code.
 
 4.5.0 - 2021-03-02  lxvs
 
