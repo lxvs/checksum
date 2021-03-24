@@ -1,7 +1,7 @@
 @echo off & setlocal
 cd %~dp0
 set "_title=Checksum"
-set "_version=4.5.0"
+set "_version=4.6.0"
 set "_target=%USERPROFILE%\checksum.bat"
 set "_icon=%SystemRoot%\System32\SHELL32.dll,-23"
 set "_crinfo=https://github.com/lxvs/checksum"
