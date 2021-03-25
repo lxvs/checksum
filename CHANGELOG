@@ -1,3 +1,7 @@
+4.6.1 - 2021-03-25  lxvs
+
+	* IMPROVEMENT: enable delayed expansion for whole script.
+
 4.6.0 - 2021-03-24  lxvs
 
 	* NEW: exit with error code.

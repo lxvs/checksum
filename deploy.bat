@@ -1,7 +1,8 @@
-@echo off & setlocal
+@echo off
+setlocal enableExtensions enableDelayedExpansion
 cd %~dp0
 set "_title=Checksum"
-set "_version=4.6.0"
+set "_version=4.6.1"
 set "_target=%USERPROFILE%\checksum.bat"
 set "_icon=%SystemRoot%\System32\SHELL32.dll,-23"
 set "_crinfo=https://github.com/lxvs/checksum"
@@ -103,7 +104,6 @@ echo ^> Adding checksum to context menu...
 call:delReg
 if "%ccmn%"=="1" (goto ccmn1) else goto ccmn0
 :ccmn1
-SETLOCAL ENABLEDELAYEDEXPANSION
 REG ADD HKCR\*\shell\checksum /v "MUIVerb" /d "Checksum (&Q)" /f >nul 2>&1 || (
     call:Err 1250
     exit /b !ERRORLEVEL!
@@ -176,10 +176,8 @@ for %%i in (%alg%) do (
         )
     )
 )
-SETLOCAL DISABLEDELAYEDEXPANSION
 goto afterccmn
 :ccmn0
-SETLOCAL ENABLEDELAYEDEXPANSION
 set "scq=1" & set "scf=1" & set "scl=1" & set "sck=1"
 for %%i in (%alg%) do (
     if "!scq!"=="1" (set "scq= (&Q)") else set scq=
@@ -241,13 +239,11 @@ for %%i in (%alg%) do (
         )
     )
 )
-SETLOCAL DISABLEDELAYEDEXPANSION
 goto afterccmn
 :afterccmn
 echo;
 echo ^> Writting the batch file to %_target%...
 (echo @echo off)>deploy.tmp || (
-    SETLOCAL ENABLEDELAYEDEXPANSION
     call:Err 610
     exit /b !ERRORLEVEL!
 )
@@ -263,18 +259,18 @@ if "%dcol%"=="1" (
     set "outpre=[93m"
     set "suf=[0m"
 )
-(echo setlocal)>>deploy.tmp
+setlocal disableDelayedExpansion
+(echo setlocal enableExtensions enableDelayedExpansion)>>deploy.tmp
 (echo rem %_crinfo%)>>deploy.tmp
 (echo title %_title% %_version%)>>deploy.tmp
 (echo if "%%~1"=="" exit /b 1)>>deploy.tmp
-(echo SETLOCAL ENABLEDELAYEDEXPANSION)>>deploy.tmp
 (echo if not exist "%%~1" ^()>>deploy.tmp
 (echo     call:ChksmErr 1950 "file %%~1 does not exist.")>>deploy.tmp
-(echo     exit /b ^!ERRORLEVEL^!)>>deploy.tmp
+(echo     exit /b !ERRORLEVEL!)>>deploy.tmp
 (echo ^))>>deploy.tmp
 (echo if "%%~z1"=="0" ^()>>deploy.tmp
 (echo     call:ChksmErr 1990 "file %%~1 is empty.")>>deploy.tmp
-(echo     exit /b ^!ERRORLEVEL^!)>>deploy.tmp
+(echo     exit /b !ERRORLEVEL!)>>deploy.tmp
 (echo ^))>>deploy.tmp
 (echo if "%%3" NEQ "" ^()>>deploy.tmp
 (echo     set "_mode=%%3")>>deploy.tmp
@@ -305,7 +301,6 @@ if "%dcol%"=="1" (
 (echo         ^))>>deploy.tmp
 (echo     ^))>>deploy.tmp
 (echo ^))>>deploy.tmp
-(echo SETLOCAL DISABLEDELAYEDEXPANSION)>>deploy.tmp
 (echo set "fpath=%%~dp1")>>deploy.tmp
 (echo set "fname=%%~nx1")>>deploy.tmp
 (echo echo %%fpath:^^=^^^^%%%fnmpre%%%fname:^^=^^^^%%%suf%)>>deploy.tmp
@@ -346,10 +341,10 @@ if "%lcase%"=="1" goto lcase
 (echo echo;)>>deploy.tmp
 (echo pause)>>deploy.tmp
 (echo exit /b %%1)>>deploy.tmp
+setlocal enableDelayedExpansion
 del /f /q %_target% >nul 2>&1
 del /ah /f /q %_target% >nul 2>&1
 echo f |xcopy deploy.tmp %_target% /h /y >nul 2>&1 || (
-    SETLOCAL ENABLEDELAYEDEXPANSION
     call:Err 920
     exit /b !ERRORLEVEL!
 )
@@ -362,7 +357,6 @@ call:delreg
 del /f /q %_target% >nul 2>&1
 del /ah /f /q %_target% >nul 2>&1
 if exist %_target% (
-    SETLOCAL ENABLEDELAYEDEXPANSION
     call:Err 1020
     exit /b !ERRORLEVEL!
 )
