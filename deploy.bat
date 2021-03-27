@@ -2,7 +2,7 @@
 setlocal enableExtensions enableDelayedExpansion
 cd %~dp0
 set "_title=Checksum"
-set "_version=4.6.1"
+set "_version=4.6.2"
 set "_target=%USERPROFILE%\checksum.bat"
 set "_icon=%SystemRoot%\System32\SHELL32.dll,-23"
 set "_crinfo=https://github.com/lxvs/checksum"
@@ -12,8 +12,8 @@ echo %_crinfo%
 echo;
 echo ^> Release Notes won't show here since 4.4.1.
 echo ^> Please see README and CHANGELOG.
-call:deltmp
-:ModeDisp
+call:Deltmp
+:modeDisp
 echo;
 echo ^> Please choose algorithms ^& options
 echo;
@@ -39,10 +39,10 @@ echo   ^| 4+16+256     MD5 and SHA256, UPPERCASE and lowercase output.
 echo;
 echo ^> 16+512+1024 ^(1552^) is recommended.
 goto modeinput
-:Unexp
+:unexp
 echo;
 echo ^> Unexpected value input.
-:ModeInput
+:modeInput
 set /p=$ <nul
 set mod=
 set /p mod=
@@ -57,8 +57,8 @@ set lcase=
 if /i "%mod:~-1%"=="Y" (set "mod=%mod:~,-1%" & set cfmd=1)
 if "%cfmd%"=="1" if /i "%mod:~-1%"=="Y" (set "mod=%mod:~,-1%" & set cfmd2=1)
 if /i "%mod:~-1%"=="L" (set "mod=%mod:~,-1%" & set lcase=1)
-set /a mod=%mod% >nul 2>&1 || goto Unexp
-if "%mod%"=="0" goto Unexp
+set /a mod=%mod% >nul 2>&1 || goto unexp
+if "%mod%"=="0" goto unexp
 set /a alg0=mod/1%%2
 set /a alg1=mod/2%%2
 set /a alg2=mod/4%%2
@@ -73,7 +73,6 @@ set /a modf=mod/1024%%2
 set /a dcol=mod/4096%%2
 set /a algs=alg0+alg1+alg2+alg3+alg4+alg5+alg6
 if "%algs%"=="0" goto unexp
-echo;
 set /p=^> You choosed: <nul
 set alg=
 if "%alg0%"=="1" set "alg=%alg% MD2"
@@ -98,8 +97,22 @@ if "%cfmd%"=="1" (
     set confirm=
     set /p confirm=
 )
-if /i "%confirm%" NEQ "Y" cls & goto modedisp
-echo;
+if /i "%confirm%" NEQ "Y" goto modeInput
+if "%dcol%"=="1" (
+    set algPre=
+    set fnmPre=
+    set outPre=
+    set errPre=
+    set sucPre=
+    set suf=
+) else (
+    set "algPre=[92m"
+    set "fnmPre=[92m"
+    set "outPre=[93m"
+    set "errPre=[93;101m"
+    set "sucPre=[92m"
+    set "suf=[0m"
+)
 echo ^> Adding checksum to context menu...
 call:delReg
 if "%ccmn%"=="1" (goto ccmn1) else goto ccmn0
@@ -241,106 +254,97 @@ for %%i in (%alg%) do (
 )
 goto afterccmn
 :afterccmn
-echo;
 echo ^> Writting the batch file to %_target%...
-(echo @echo off)>deploy.tmp || (
+setlocal disableDelayedExpansion
+(
+echo @echo off
+echo setlocal enableExtensions enableDelayedExpansion
+echo rem %_crinfo%
+echo title %_title% %_version%
+echo if "%%~1"=="" exit /b 1
+echo if not exist "%%~1" ^(
+echo     call:ChksmErr 1950 "file %%~1 does not exist."
+echo     exit /b !ERRORLEVEL!
+echo ^)
+echo if "%%~z1"=="0" ^(
+echo     call:ChksmErr 1990 "file %%~1 is empty."
+echo     exit /b !ERRORLEVEL!
+echo ^)
+echo if "%%3" NEQ "" ^(
+echo     set "_mode=%%3"
+echo     set "_C=0"
+echo     set "_F=0"
+echo     set "_L=0"
+echo     set "_Q=0"
+echo     set "len=0"
+echo     :parse
+echo     set "tran=!_mode:~%%len%%,1!"
+echo     set /a "len+=1"
+echo     if "!tran!" NEQ "" ^(
+echo         if "!tran!"=="C" ^(
+echo             set "_C=1"
+echo             goto parse
+echo         ^)
+echo         if "!tran!"=="F" ^(
+echo             set "_F=1"
+echo             goto parse
+echo         ^)
+echo         if "!tran!"=="L" ^(
+echo             set "_L=1"
+echo             goto parse
+echo         ^)
+echo         if "!tran!"=="Q" ^(
+echo             set "_Q=1"
+echo             goto parse
+echo         ^)
+echo     ^)
+echo ^)
+echo set "fpath=%%~dp1"
+echo set "fname=%%~nx1"
+echo echo %%fpath:^^=^^^^%%%fnmpre%%%fname:^^=^^^^%%%suf%
+echo set mout=
+echo FOR /F "skip=1 delims=" %%%%i IN ^('CertUtil -hashfile %%1 %%2'^) do if not defined mout set mout=%%%%i
+echo if /i "%%mout:~0,8%%"=="certutil" goto cuerr
+if not "%lcase%"=="1" (
+    echo if "%%_L%%"=="1" goto skipupper
+    echo set moutupper=
+    echo FOR /F "skip=2 delims=" %%%%I in ^('tree "\%%mout%%"'^) do if not defined moutupper set "moutupper=%%%%~I"
+    echo set "mout=%%moutupper:~3%%"
+    echo :skipupper
+)
+echo if "%%_F%%"=="1" goto fileoutput
+echo set /p=%algpre%%%2%suf%: ^<nul
+echo echo %outpre%%%mout%%%suf%
+echo echo;
+echo echo ^| set /p=%%mout%%^| clip
+echo if "%%_Q%%"=="1" exit /b 0
+echo echo Checksum has been copied to clipboard.
+echo echo;
+echo pause
+echo exit /b 0
+echo :fileoutput
+echo set "fnamef=%%~nx1"
+echo set "fnamefR=%%fnamef:^=^^%%"
+echo echo %%fnamefR%%^>"%%fnamef%%_%%2.txt"
+echo echo %%2: %%mout%%^>^>"%%fnamef%%_%%2.txt"
+echo exit /b 0
+echo :cuerr
+echo ^(certutil -hashfile %%1 %%2^)^>nul 2^>^&1
+echo echo %errpre%%%mout:~10%%%suf%
+echo echo;
+echo pause
+echo exit /b %%ERRORLEVEL%%
+echo :ChksmErr
+echo echo %errpre%Error^(%%1^): %%~2%suf%
+echo echo;
+echo pause
+echo exit /b %%1
+)>deploy.tmp || (
+    setlocal enableDelayedExpansion
     call:Err 610
     exit /b !ERRORLEVEL!
 )
 attrib +h deploy.tmp
-if "%dcol%"=="1" (
-    set algpre=
-    set fnmpre=
-    set outpre=
-    set suf=
-) else (
-    set "algpre=[92m"
-    set "fnmpre=[92m"
-    set "outpre=[93m"
-    set "suf=[0m"
-)
-setlocal disableDelayedExpansion
-(echo setlocal enableExtensions enableDelayedExpansion)>>deploy.tmp
-(echo rem %_crinfo%)>>deploy.tmp
-(echo title %_title% %_version%)>>deploy.tmp
-(echo if "%%~1"=="" exit /b 1)>>deploy.tmp
-(echo if not exist "%%~1" ^()>>deploy.tmp
-(echo     call:ChksmErr 1950 "file %%~1 does not exist.")>>deploy.tmp
-(echo     exit /b !ERRORLEVEL!)>>deploy.tmp
-(echo ^))>>deploy.tmp
-(echo if "%%~z1"=="0" ^()>>deploy.tmp
-(echo     call:ChksmErr 1990 "file %%~1 is empty.")>>deploy.tmp
-(echo     exit /b !ERRORLEVEL!)>>deploy.tmp
-(echo ^))>>deploy.tmp
-(echo if "%%3" NEQ "" ^()>>deploy.tmp
-(echo     set "_mode=%%3")>>deploy.tmp
-(echo     set "_C=0")>>deploy.tmp
-(echo     set "_F=0")>>deploy.tmp
-(echo     set "_L=0")>>deploy.tmp
-(echo     set "_Q=0")>>deploy.tmp
-(echo     set "len=0")>>deploy.tmp
-(echo     :parse)>>deploy.tmp
-(echo     set "tran=!_mode:~%%len%%,1!")>>deploy.tmp
-(echo     set /a "len+=1")>>deploy.tmp
-(echo     if "!tran!" NEQ "" ^()>>deploy.tmp
-(echo         if "!tran!"=="C" ^()>>deploy.tmp
-(echo             set "_C=1")>>deploy.tmp
-(echo             goto parse)>>deploy.tmp
-(echo         ^))>>deploy.tmp
-(echo         if "!tran!"=="F" ^()>>deploy.tmp
-(echo             set "_F=1")>>deploy.tmp
-(echo             goto parse)>>deploy.tmp
-(echo         ^))>>deploy.tmp
-(echo         if "!tran!"=="L" ^()>>deploy.tmp
-(echo             set "_L=1")>>deploy.tmp
-(echo             goto parse)>>deploy.tmp
-(echo         ^))>>deploy.tmp
-(echo         if "!tran!"=="Q" ^()>>deploy.tmp
-(echo             set "_Q=1")>>deploy.tmp
-(echo             goto parse)>>deploy.tmp
-(echo         ^))>>deploy.tmp
-(echo     ^))>>deploy.tmp
-(echo ^))>>deploy.tmp
-(echo set "fpath=%%~dp1")>>deploy.tmp
-(echo set "fname=%%~nx1")>>deploy.tmp
-(echo echo %%fpath:^^=^^^^%%%fnmpre%%%fname:^^=^^^^%%%suf%)>>deploy.tmp
-(echo set mout=)>>deploy.tmp
-(echo FOR /F "skip=1 delims=" %%%%i IN ^('CertUtil -hashfile %%1 %%2'^) do if not defined mout set mout=%%%%i)>>deploy.tmp
-(echo if /i "%%mout:~0,8%%"=="certutil" goto cuerr)>>deploy.tmp
-if "%lcase%"=="1" goto lcase
-(echo if "%%_L%%"=="1" goto skipupper)>>deploy.tmp
-(echo set moutupper=)>>deploy.tmp
-(echo FOR /F "skip=2 delims=" %%%%I in ^('tree "\%%mout%%"'^) do if not defined moutupper set "moutupper=%%%%~I")>>deploy.tmp
-(echo set "mout=%%moutupper:~3%%")>>deploy.tmp
-(echo :skipupper)>>deploy.tmp
-:lcase
-(echo if "%%_F%%"=="1" goto fileoutput)>>deploy.tmp
-(echo set /p=%algpre%%%2%suf%: ^<nul)>>deploy.tmp
-(echo echo %outpre%%%mout%%%suf%)>>deploy.tmp
-(echo echo;)>>deploy.tmp
-(echo echo ^| set /p=%%mout%%^| clip)>>deploy.tmp
-(echo if "%%_Q%%"=="1" exit /b 0)>>deploy.tmp
-(echo echo Checksum has been copied to clipboard.)>>deploy.tmp
-(echo echo;)>>deploy.tmp
-(echo pause)>>deploy.tmp
-(echo exit /b 0)>>deploy.tmp
-(echo :fileoutput)>>deploy.tmp
-(echo set "fnamef=%%~nx1")>>deploy.tmp
-(echo set "fnamefR=%%fnamef:^=^^%%")>>deploy.tmp
-(echo echo %%fnamefR%%^>"%%fnamef%%_%%2.txt")>>deploy.tmp
-(echo echo %%2: %%mout%%^>^>"%%fnamef%%_%%2.txt")>>deploy.tmp
-(echo exit /b 0)>>deploy.tmp
-(echo :cuerr)>>deploy.tmp
-(echo ^(certutil -hashfile %%1 %%2^)^>nul 2^>^&1)>>deploy.tmp
-(echo echo [93;101m%%mout:~10%%[0m)>>deploy.tmp
-(echo echo;)>>deploy.tmp
-(echo pause)>>deploy.tmp
-(echo exit /b %%ERRORLEVEL%%)>>deploy.tmp
-(echo :ChksmErr)>>deploy.tmp
-(echo echo [93;101mError^(%%1^): %%~2[0m)>>deploy.tmp
-(echo echo;)>>deploy.tmp
-(echo pause)>>deploy.tmp
-(echo exit /b %%1)>>deploy.tmp
 setlocal enableDelayedExpansion
 del /f /q %_target% >nul 2>&1
 del /ah /f /q %_target% >nul 2>&1
@@ -350,45 +354,31 @@ echo f |xcopy deploy.tmp %_target% /h /y >nul 2>&1 || (
 )
 attrib +r +h %_target%
 call:DelTmp
-goto Finished
+echo %sucPre%^> Deployment is finished.%suf%
+if "%cfmd2%" NEQ "1" pause
+exit /b 0
 
 :uninstall
-call:delreg
+call:Delreg
 del /f /q %_target% >nul 2>&1
 del /ah /f /q %_target% >nul 2>&1
 if exist %_target% (
     call:Err 1020
     exit /b !ERRORLEVEL!
 )
-goto Finished_0
-
-:Finished
-echo;
-echo ^> Deployment is finished.
-echo;
-set /p=^> <nul
-if "%cfmd2%" NEQ "1" pause
-exit /b 0
-
-:Finished_0
-echo;
 echo ^> Uninstallation has finished.
-echo;
 echo ^> If checksum items still exist in context menu, please run this script as adminitrator and unistall again.
 echo;
-set /p=^> <nul
 pause
 exit /b 0
 
 :Err
-call:deltmp
-cls
+call:Deltmp
 echo;
+echo ^> %errpre%ERROR%suf%
 echo ^> Error code: %1
-echo;
 echo ^> Please run this script as administrator.
 echo;
-set /p=^> <nul
 pause
 exit /b %1
 

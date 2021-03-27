@@ -1,3 +1,15 @@
+4.6.2 - 2021-03-27  lxvs
+
+	* BUGFIX: color of certutil error info was not controlled by 4096
+	* IMPROVEMENT: add color to deploying error, controlled by 4096
+	* IMPROVEMENT: add color to deploying finishing prompt, controlled
+	               by 4096
+	* IMPROVEMENT: adjust code structure of generating deploy.tmp
+	* IMPROVEMENT: remove label finished and label finished_0
+	* IMPROVEMENT: remove many empty lines in prompts
+	* IMPROVEMENT: remove '>' symbol before pauses
+	* IMPROVEMENT: adjust cases of functions/labels
+
 4.6.1 - 2021-03-25  lxvs
 
 	* IMPROVEMENT: enable delayed expansion for whole script.
