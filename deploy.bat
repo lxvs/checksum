@@ -214,7 +214,6 @@
 @set "sck=1"
 @for %%i in (%alg%) do @(
     @if "!scq!"=="1" (set "scq= (&Q)") else set scq=
-    @REM TODO if not defined scq ...
     @REG ADD HKCR\*\shell\checksuma_%%i /ve /d "Checksum - %%i!scq!" /f 1>nul 2>&1 || (
         @call:Err 560
         @exit /b
