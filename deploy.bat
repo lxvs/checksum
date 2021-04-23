@@ -279,88 +279,84 @@
 @echo ^> Writting the batch file to %_target%...
 @setlocal disableDelayedExpansion
 @(
-echo @echo off
-echo setlocal enableExtensions enableDelayedExpansion
-echo rem %_crinfo%
-echo title %_title% %_version%
-echo if "%%~1"=="" exit /b 1
-echo if not exist "%%~1" ^(
-echo     call:ChksmErr 1950 "file %%~1 does not exist."
-echo     exit /b
+echo @setlocal enableExtensions enableDelayedExpansion
+echo @rem %_crinfo%
+echo @title %_title% %_version%
+echo @if "%%~1" == "" @exit /b 1
+echo @if not exist "%%~1" ^(
+echo     @call:ChksmErr 1950 "file %%~1 does not exist."
+echo     @exit /b
 echo ^)
-echo if "%%~z1"=="0" ^(
-echo     call:ChksmErr 1990 "file %%~1 is empty."
-echo     exit /b
+echo @if "%%~z1" == "0" ^(
+echo     @call:ChksmErr 1990 "file %%~1 is empty."
+echo     @exit /b
 echo ^)
-echo if "%%3" NEQ "" ^(
-echo     set "_mode=%%3"
-echo     set "_C=0"
-echo     set "_F=0"
-echo     set "_L=0"
-echo     set "_Q=0"
-echo     set "len=0"
-echo     :parse
-echo     set "tran=!_mode:~%%len%%,1!"
-echo     set /a "len+=1"
-echo     if "!tran!" NEQ "" ^(
-echo         if "!tran!"=="C" ^(
-echo             set "_C=1"
-echo             goto parse
-echo         ^)
-echo         if "!tran!"=="F" ^(
-echo             set "_F=1"
-echo             goto parse
-echo         ^)
-echo         if "!tran!"=="L" ^(
-echo             set "_L=1"
-echo             goto parse
-echo         ^)
-echo         if "!tran!"=="Q" ^(
-echo             set "_Q=1"
-echo             goto parse
-echo         ^)
+echo @if not "%%3" == "" ^(
+echo     @set "_mode=%%3"
+echo     @set "_F=0"
+echo     @set "_L=0"
+echo     @set "_Q=0"
+echo     @set "len=0"
+echo     @goto parse
+echo ^) else @goto postparse
+echo :parse
+echo @set "tran=!_mode:~%%len%%,1!"
+echo @set /a "len+=1"
+echo @if "!tran!" NEQ "" ^(
+echo     @if "!tran!"=="F" ^(
+echo         @set "_F=1"
+echo         @goto parse
+echo     ^)
+echo     @if "!tran!"=="L" ^(
+echo         @set "_L=1"
+echo         @goto parse
+echo     ^)
+echo     @if "!tran!"=="Q" ^(
+echo         @set "_Q=1"
+echo         @goto parse
 echo     ^)
 echo ^)
-echo set "fpath=%%~dp1"
-echo set "fname=%%~nx1"
-echo echo %%fpath:^^=^^^^%%%fnmpre%%%fname:^^=^^^^%%%suf%
-echo set mout=
-echo FOR /F "skip=1 delims=" %%%%i IN ^('CertUtil -hashfile %%1 %%2'^) do if not defined mout set mout=%%%%i
-echo if /i "%%mout:~0,8%%"=="certutil" goto cuerr
-if not "%lcase%"=="1" (
-    echo if "%%_L%%"=="1" goto skipupper
-    echo set moutupper=
-    echo FOR /F "skip=2 delims=" %%%%I in ^('tree "\%%mout%%"'^) do if not defined moutupper set "moutupper=%%%%~I"
-    echo set "mout=%%moutupper:~3%%"
+echo :postparse
+echo @set "fpath=%%~dp1"
+echo @set "fname=%%~nx1"
+echo @if not "%%_Q%%" == "1" @if not "%%_F%%" == "1" @echo %%fpath:^^=^^^^%%%fnmpre%%%fname:^^=^^^^%%%suf%
+echo @set mout=
+echo @FOR /F "skip=1 delims=" %%%%i IN ^('CertUtil -hashfile %%1 %%2'^) do @if not defined mout set mout=%%%%i
+echo @if /i "%%mout:~0,8%%"=="certutil" @goto cuerr
+if not "%lcase%" == "1" (
+    echo @if "%%_L%%"=="1" goto skipupper
+    echo @set moutupper=
+    echo @FOR /F "skip=2 delims=" %%%%I in ^('tree "\%%mout%%"'^) do @if not defined moutupper set "moutupper=%%%%~I"
+    echo @set "mout=%%moutupper:~3%%"
     echo :skipupper
 )
-echo if "%%_F%%"=="1" goto fileoutput
-echo set /p=%algpre%%%2%suf%: ^<nul
-echo echo %outpre%%%mout%%%suf%
-echo echo;
-echo echo ^| set /p=%%mout%%^| clip
-echo if "%%_Q%%"=="1" exit /b 0
-echo echo Checksum has been copied to clipboard.
-echo echo;
-echo pause
-echo exit /b 0
+echo @if "%%_F%%" == "1" goto fileoutput
+echo @echo ^| set /p=%%mout%%^| clip
+echo @if "%%_Q%%" == "1" exit /b 0
+echo @set /p=%algpre%%%2%suf%: ^<nul
+echo @echo %outpre%%%mout%%%suf%
+echo @echo;
+echo @echo Checksum has been copied to clipboard.
+echo @echo;
+echo @pause
+echo @exit /b 0
 echo :fileoutput
-echo set "fnamef=%%~nx1"
-echo set "fnamefR=%%fnamef:^=^^%%"
-echo echo %%fnamefR%%^>"%%fnamef%%_%%2.txt"
-echo echo %%2: %%mout%%^>^>"%%fnamef%%_%%2.txt"
-echo exit /b 0
+echo @set "fnamef=%%~nx1"
+echo @set "fnamefR=%%fnamef:^=^^%%"
+echo @echo %%fnamefR%%^>"%%fnamef%%_%%2.txt"
+echo @echo %%2: %%mout%%^>^>"%%fnamef%%_%%2.txt"
+echo @exit /b 0
 echo :cuerr
-echo ^(certutil -hashfile %%1 %%2^)^>nul 2^>^&1
-echo echo %errpre%%%mout:~10%%%suf%
-echo echo;
-echo pause
-echo exit /b %%ERRORLEVEL%%
+echo @^(certutil -hashfile %%1 %%2^) 1^>nul 2^>^&1
+echo @echo %errpre%%%mout:~10%%%suf%
+echo @echo;
+echo @pause
+echo @exit /b
 echo :ChksmErr
-echo echo %errpre%Error^(%%1^): %%~2%suf%
-echo echo;
-echo pause
-echo exit /b %%1
+echo @echo %errpre%Error^(%%1^): %%~2%suf%
+echo @echo;
+echo @pause
+echo @exit /b %%1
 )>deploy.tmp || (
     @call:Err 610
     @exit /b
