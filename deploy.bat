@@ -6,11 +6,11 @@
 @set "_target=%USERPROFILE%\checksum.bat"
 @set "_icon=%SystemRoot%\System32\SHELL32.dll,-23"
 @set "_crinfo=https://github.com/lxvs/checksum"
-@title %_title% %_version% Deployment
-@echo %_title% %_version%
+@title %_title% v%_version% Deployment
+@echo %_title% v%_version%
 @echo %_crinfo%
 @echo;
-@echo ^> Release Notes won't show here since 4.4.1.
+@echo ^> Release Notes won't show here since v4.4.1.
 @echo ^> Please see README and CHANGELOG.
 @call:Deltmp
 
@@ -280,7 +280,7 @@
 @(
 echo @setlocal enableExtensions enableDelayedExpansion
 echo @rem %_crinfo%
-echo @title %_title% %_version%
+echo @title %_title% v%_version%
 echo @if "%%~1" == "" @exit /b 1
 echo @if not exist "%%~1" ^(
 echo     @call:ChksmErr 1950 "file %%~1 does not exist."
