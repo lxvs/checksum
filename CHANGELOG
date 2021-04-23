@@ -1,3 +1,11 @@
+4.7.0 - 2021-04-23  lxvs
+
+	* Remake deployment script
+	* Remake checksum.bat
+	* Quiet mode and output-to-file mode won't display anything in
+	  console anymore
+	* Replace the display of version number (4.6.2 -> v4.6.2)
+
 4.6.2 - 2021-03-27  lxvs
 
 	* BUGFIX: color of certutil error info was not controlled by 4096

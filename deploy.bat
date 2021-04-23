@@ -2,7 +2,7 @@
 @pushd %~dp0
 
 @set "_title=Checksum"
-@set "_version=4.6.2"
+@set "_version=4.7.0"
 @set "_target=%USERPROFILE%\checksum.bat"
 @set "_icon=%SystemRoot%\System32\SHELL32.dll,-23"
 @set "_crinfo=https://github.com/lxvs/checksum"
