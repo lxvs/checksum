@@ -1,3 +1,12 @@
+5.0.0 - 2021-06-22
+
+	* Need not administrator privilege any more!
+	* Will uninstall previous installation when installing, if any.
+	* Improve error prompts.
+	* Add last update information.
+	* Replace website from GitHub repo to lxvs.net/checksum
+	* Add echo off.
+
 4.7.0 - 2021-04-23  lxvs
 
 	* Remake deployment script
